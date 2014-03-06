@@ -30,6 +30,8 @@ class View implements ElementWrapper {
   List<dom.Node> elements;
   ElementWrapper next;
   ElementWrapper previous;
+  EventHandler eventHandler;
+  List<_RegistrationHandle> eventRegistrations = [];
 
   Function onInsert;
   Function onRemove;
@@ -38,7 +40,11 @@ class View implements ElementWrapper {
   List<dynamic> _directives = [];
   final NgAnimate _animate;
 
-  View(this.elements, this._animate);
+  View(this.elements, this.eventHandler, this._animate);
+
+  void registerEvent(String eventName, EventFunction fn) {
+    eventRegistrations.add(eventHandler.register(eventName, fn, elements));
+  }
 
   View insertAfter(ElementWrapper previousView) {
     // Update Link List.
@@ -77,6 +83,7 @@ class View implements ElementWrapper {
   }
 
   View remove() {
+    eventRegistrations.forEach((e) => eventHandler.unregister(e));
     bool preventDefault = false;
 
     Function removeDomElements = () {
@@ -111,7 +118,7 @@ class View implements ElementWrapper {
         previousElement = previousElements[previousElements.length - 1],
         insertBeforeElement = previousElement.nextNode,
         parentElement = previousElement.parentNode;
-    
+
     elements.forEach((el) => parentElement.insertBefore(el, insertBeforeElement));
 
     // Remove view from list
