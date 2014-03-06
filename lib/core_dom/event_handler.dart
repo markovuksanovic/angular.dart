@@ -6,9 +6,10 @@ typedef void EventFunction(event);
 class EventHandler {
   Map<String, Map<List<dom.Node>, EventFunction>> _eventRegistry = {};
   Map<String, dom.EventListener> _eventToListener = {};
-  dom.Element rootElement;
+  dom.Node rootElement;
 
   EventHandler(NgApp ngApp) : rootElement = ngApp.root;
+  EventHandler.fromNode(this.rootElement);
 
   _RegistrationHandle register(String eventName, EventFunction fn, List<dom.Node> elements) {
     var eventHandle = new _RegistrationHandle(eventName, elements);

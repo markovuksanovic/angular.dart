@@ -390,7 +390,9 @@ class _ComponentFactory {
   }
 
   attachViewToShadowDom(ViewFactory viewFactory) {
-    var view = viewFactory(shadowInjector);
+    var injector = shadowInjector.createChild([new Module()
+          ..value(EventHandler, new EventHandler.fromNode(shadowDom))]);
+    var view = viewFactory(injector);
     shadowDom.nodes.addAll(view.elements);
     return shadowDom;
   }
