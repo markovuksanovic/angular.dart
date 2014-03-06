@@ -35,6 +35,8 @@ class ElementBinder {
 
   DirectiveRef component;
 
+  Map<String, String> onEvents = <String, String>{};
+
   var childElementBinders;
 
   var offsetIndex;
@@ -81,7 +83,9 @@ class ElementBinder {
 
 
   bool isUseful() {
-    return (usableDirectiveRefs != null && usableDirectiveRefs.length != 0) || childElementBinders != null;
+    return (usableDirectiveRefs != null && usableDirectiveRefs.length != 0) ||
+        childElementBinders != null ||
+        onEvents.keys.length != 0 ;
   }
 
   static RegExp _MAPPING = new RegExp(r'^(\@|=\>\!|\=\>|\<\=\>|\&)\s*(.*)$');

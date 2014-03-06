@@ -107,6 +107,11 @@ class ViewFactory {
     var nodeAttrs = node is dom.Element ? new NodeAttrs(node) : null;
     ElementProbe probe;
 
+    elementBinder.onEvents.forEach((event, value) {
+      view.registerEvent(event.replaceAll("on-", ""), (event) {
+        scope.eval(value);
+      });
+    });
     var directiveRefs = elementBinder.usableDirectiveRefs;
     try {
       if (directiveRefs == null || directiveRefs.length == 0) return parentInjector;
@@ -208,9 +213,6 @@ class ViewFactory {
         } else if (ref.annotation is NgComponent) {
           shadowScope.context[(ref.annotation as NgComponent).publishAs] = controller;
         }
-        if(ref.annotation.selector.startsWith("[on-")) {
-          _findEventAttrsAndRegister(view, ref, nodeAttrs, scope);
-        }
         if (nodeAttrs == null) nodeAttrs = new _AnchorAttrs(ref);
         var attachDelayStatus = controller is NgAttachAware ? [false] : null;
         checkAttachReady() {
@@ -257,17 +259,6 @@ class ViewFactory {
     });
     return nodeInjector;
   }
-
-  void _findEventAttrsAndRegister(View view, DirectiveRef ref,
-                                    NodeAttrs nodeAttrs, Scope scope) {
-      Map<String, String> eventAttrs = nodeAttrs.where((k, _) => k.startsWith("on-"));
-      eventAttrs.forEach((k, v) {
-        var eventName = k.replaceAll("on-", "");
-        view.registerEvent(eventName, (event) {
-            scope.eval(ref.value);
-          });
-      });
-    }
 
   // DI visibility callback allowing node-local visibility.
 

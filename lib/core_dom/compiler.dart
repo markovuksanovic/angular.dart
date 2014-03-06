@@ -15,8 +15,9 @@ class Compiler {
     List<ElementBinder> elementBinders = null; // don't pre-create to create sparse tree and prevent GC pressure.
 
     do {
+      var element = domCursor.nodeList()[0];
       ElementBinder declaredElementSelector = useExistingElementBinder == null
-          ?  directives.selector(domCursor.nodeList()[0])
+          ?  directives.selector(element)
           : useExistingElementBinder;
 
       declaredElementSelector.offsetIndex = templateCursor.index;
@@ -42,6 +43,13 @@ class Compiler {
       };
 
       declaredElementSelector.walkDOM(compileTransclusionCallback, compileChildrenCallback);
+
+      if( element.nodeType == 1 ) {
+        element.attributes.keys.where((key) => key.startsWith("on-")).forEach(
+            (key) {
+          declaredElementSelector.onEvents[key] = element.attributes[key];
+        });
+      }
 
       if (declaredElementSelector.isUseful()) {
         if (elementBinders == null) elementBinders = [];
