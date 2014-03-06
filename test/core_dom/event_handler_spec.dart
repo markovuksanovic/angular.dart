@@ -2,6 +2,14 @@ library event_handler_spec;
 
 import '../_specs.dart';
 
+class Logger {
+  var logs = <String>[];
+
+  void log(message) {
+    logs.add(message);
+  }
+}
+
 main() {
   describe('EventHandler', () {
     EventHandler eventHandler;
@@ -86,6 +94,50 @@ main() {
       expect(barInvoked).toBe(false);
     });
 
+    var shadowRoot;
+    var shadowRootChild;
+    var insertionPoint;
+    var insertedElement;
+    var logger;
+
+    describe('ShadowDom', () {
+      beforeEach(() {
+        logger = new Logger();
+        root = document.createElement('div');
+        shadowRootChild = document.createElement('div');
+        insertionPoint = document.createElement('content');
+        insertedElement = document.createElement('p');
+
+        var shadowRootHolder = document.createElement('my-element');
+        shadowRoot = shadowRootHolder.createShadowRoot();
+
+        shadowRoot.append(shadowRootChild);
+        shadowRoot.append(insertionPoint);
+        root.append(shadowRootHolder);
+        shadowRootHolder.append(insertedElement);
+
+        shadowRoot.addEventListener('x', (event) => logger.log(event.target.toString()));
+        root.addEventListener('x', (event) => logger.log(event.target.toString()));
+
+        document.body.append(root);
+      });
+
+      it('event source should be same within shadowDom and retargeted outside',
+          () {
+        Event e = new Event('x');
+        shadowRootChild.dispatchEvent(e);
+        expect(logger.logs[0]).toEqual('div');
+        expect(logger.logs[1]).toEqual('my-element');
+      });
+
+      it('event source should be same within shadowDom and same outside if'
+          ' fired from inserted element', () {
+        Event e = new Event('x');
+        insertedElement.dispatchEvent(e);
+        expect(logger.logs[0]).toEqual('p');
+        expect(logger.logs[1]).toEqual('p');
+      });
+    });
 
     // TODO(@marko) add more test to cover scenario where there are multiple
     // event and/or multiple nodes.
