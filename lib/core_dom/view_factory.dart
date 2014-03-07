@@ -108,9 +108,8 @@ class ViewFactory {
     ElementProbe probe;
 
     elementBinder.onEvents.forEach((event, value) {
-      view.registerEvent(event.replaceAll("on-", ""), (event) {
-        scope.eval(value);
-      });
+      // not sure if we don't have to on-my-event should be myEvent???
+      view.registerEvent(event.replaceAll("on-", ""));
     });
     var directiveRefs = elementBinder.usableDirectiveRefs;
     try {
@@ -390,8 +389,7 @@ class _ComponentFactory {
   }
 
   attachViewToShadowDom(ViewFactory viewFactory) {
-    var injector = shadowInjector.createChild([new Module()
-          ..value(EventHandler, new EventHandler.fromNode(shadowDom))]);
+    var injector = shadowInjector.createChild([new Module()..type(EventHandler)]);
     var view = viewFactory(injector);
     shadowDom.nodes.addAll(view.elements);
     return shadowDom;

@@ -12,8 +12,9 @@ class EventHandler {
   EventHandler.fromNode(this.rootElement);
 
   _RegistrationHandle register(String eventName, EventFunction fn, List<dom.Node> elements) {
-    var eventHandle = new _RegistrationHandle(eventName, elements);
-    var eventListener = (dom.Event event) {
+    // TODO: I don't think you need EventFunction. The function can be extracted from the DOM.
+    _RegistrationHandle eventHandle = new _RegistrationHandle(eventName, elements);
+    EventFunction eventListener = (dom.Event event) {
       if(elements.any((e) => e == event.target || e.contains(event.target))) {
         _eventRegistry[eventName][elements](event);
       }
@@ -28,6 +29,7 @@ class EventHandler {
     return eventHandle;
   }
 
+  // TODO: do we need unregister? I don't think there are any benefits to removing events.
   void unregister(_RegistrationHandle registrationHandle) {
     _eventRegistry[registrationHandle.eventName].remove(registrationHandle.nodes);
     if (_eventRegistry[registrationHandle.eventName].isEmpty) {
@@ -43,4 +45,48 @@ class _RegistrationHandle {
   String eventName;
 
   _RegistrationHandle(this.eventName, this.nodes);
+}
+
+class EventHandler2 {
+  final dom.Element rootElement;
+  final Expando expando;
+  final Map<String, Function> listeners;
+  final ExceptionHandler exceptionHandler;
+
+  EventHandler2(this.rootElement, this.expando, this.exceptionHandler);
+
+  void addListenerType(String name) {
+    listeners.putIfAbsent(name, () {
+      dom.EventListener eventListener = this.eventListener;
+      rootElement.addEventListener(name, eventListener);
+      return eventListener;
+    });
+  }
+
+  eventListener(dom.Event event) {
+    var attrName = 'on-$name';
+    dom.Element element = event.target;
+    while (element != null && element != rootElement) {
+      var expression = element.attributes[attrName];
+      if (expression != null) {
+        try {
+          getScope(element).eval(expression);
+        } catch (e, s) {
+          exceptionHandler(e, s);
+        }
+      }
+      element = element.parent;
+    }
+  }
+
+  Scope getScope(dom.Element element) {
+    while (element != null && element != rootElement) {
+      ElementProbe probe = expando[element];
+      if (probe != null) {
+        return probe.scope;
+      }
+      element = element.parent;
+    }
+    throw 'should never happen';
+  }
 }

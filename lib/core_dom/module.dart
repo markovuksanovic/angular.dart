@@ -36,6 +36,7 @@ class NgCoreDomModule extends Module {
     value(ElementProbe, null);
 
     factory(TemplateCache, (_) => new TemplateCache(capacity: 0));
+    factory(dom.Element, (injector) => injector.get(NgApp).rootElement);
     type(dom.NodeTreeSanitizer, implementedBy: NullTreeSanitizer);
 
     type(NgTextMustacheDirective);
@@ -57,7 +58,7 @@ class NgCoreDomModule extends Module {
     type(DirectiveMap);
     type(DirectiveSelectorFactory);
     type(ElementBinderFactory);
-    type(EventHandler);
+    type(EventHandler2);
   }
 }
 

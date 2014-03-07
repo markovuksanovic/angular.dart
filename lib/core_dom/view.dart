@@ -30,7 +30,7 @@ class View implements ElementWrapper {
   List<dom.Node> elements;
   ElementWrapper next;
   ElementWrapper previous;
-  EventHandler eventHandler;
+  EventHandler2 eventHandler;
   List<_RegistrationHandle> eventRegistrations = [];
 
   Function onInsert;
@@ -42,8 +42,8 @@ class View implements ElementWrapper {
 
   View(this.elements, this.eventHandler, this._animate);
 
-  void registerEvent(String eventName, EventFunction fn) {
-    eventRegistrations.add(eventHandler.register(eventName, fn, elements));
+  void registerEvent(String eventName) {
+    eventHandler.addListenerType(eventName);
   }
 
   View insertAfter(ElementWrapper previousView) {
