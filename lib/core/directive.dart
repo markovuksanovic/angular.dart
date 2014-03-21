@@ -57,7 +57,7 @@ abstract class NgAnnotation {
    */
   final String visibility;
   final List<Type> publishTypes;
-  final Type module;
+  final dynamic module;
 
   /**
    * Use map to define the mapping of  DOM attributes to fields.
