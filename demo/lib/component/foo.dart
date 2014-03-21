@@ -5,11 +5,15 @@ import 'package:angular/angular.dart';
 @NgComponent(selector: 'foo',
     publishAs: 'ctrl',
     templateUrl: 'packages/demo/component/foo.html',
-    module: CustomModule)
+    module: FooComponent.module)
+    // Or one can use
+    // module: CustomModule)
 class FooComponent {
   final SomeType someType;
   final SomeType2 someType2;
   final SomeType3 someType3;
+
+  static Module module() => new CustomModule();
 
   FooComponent(this.someType, this.someType2, this.someType3) {
     print(someType.i);
