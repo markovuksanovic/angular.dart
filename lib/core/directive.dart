@@ -57,6 +57,7 @@ abstract class NgAnnotation {
    */
   final String visibility;
   final List<Type> publishTypes;
+  final Type module;
 
   /**
    * Use map to define the mapping of  DOM attributes to fields.
@@ -140,6 +141,7 @@ abstract class NgAnnotation {
     this.children: NgAnnotation.COMPILE_CHILDREN,
     this.visibility: NgDirective.LOCAL_VISIBILITY,
     this.publishTypes: const [],
+    this.module,
     this.map: const {},
     this.exportExpressions: const [],
     this.exportExpressionAttrs: const []
@@ -213,6 +215,7 @@ class NgComponent extends NgAnnotation {
     this.applyAuthorStyles,
     this.resetStyleInheritance,
     this.publishAs,
+    module,
     map,
     selector,
     visibility,
@@ -225,6 +228,7 @@ class NgComponent extends NgAnnotation {
              visibility: visibility,
              publishTypes: publishTypes,
              map: map,
+             module: module,
              exportExpressions: exportExpressions,
              exportExpressionAttrs: exportExpressionAttrs);
 

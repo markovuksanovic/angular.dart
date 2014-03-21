@@ -177,6 +177,12 @@ class ElementBinder {
           nodeModule.factory(publishType, (Injector injector) =>
               injector.get(ref.type), visibility: visibility);
         }
+        if (ref.annotation.module != null) {
+          ClassMirror classMirror = reflectClass(ref.annotation.module);
+          MethodMirror ctor = classMirror.declarations[classMirror.simpleName];
+          var module = classMirror.newInstance(ctor.constructorName, []).reflectee;
+          nodeModule.install(module);
+        }
         if (annotation.children == NgAnnotation.TRANSCLUDE_CHILDREN) {
           // Currently, transclude is only supported for NgDirective.
           assert(annotation is NgDirective);
