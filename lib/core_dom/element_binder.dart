@@ -179,36 +179,7 @@ class ElementBinder {
         }
 
         if (ref.annotation.module != null) {
-          if (reflect(ref.annotation.module) is! ClosureMirror ) {
-            ClassMirror classMirror = reflectClass(ref.annotation.module);
-            MethodMirror ctor = classMirror.declarations[classMirror.simpleName];
-
-            resolveArgument(int pos) {
-              ParameterMirror p = ctor.parameters[pos];
-              if (MirrorSystem.getName(p.type.qualifiedName) == 'dynamic') {
-                var name = MirrorSystem.getName(p.simpleName);
-                throw "The '$name' parameter must be typed";
-              }
-              if (p.type is TypedefMirror) {
-                throw 'Cannot create new instance of a typedef ${p.type}';
-              }
-              if (p.metadata.isNotEmpty) {
-                var annotations = p.metadata.map(
-                    (item) => item.type.reflectedType).toList();
-                assert(annotations.length == 1);
-                return parentInjector.get((p.type as ClassMirror).reflectedType, annotations[0]);
-              } else {
-                return parentInjector.get((p.type as ClassMirror).reflectedType);
-              }
-            }
-            var args = new List.generate(ctor.parameters.length, resolveArgument,
-                    growable: false);
-            var module = classMirror.newInstance(ctor.constructorName, args).reflectee;
-            nodeModule.install(module);
-          } else {
-            ClosureMirror closureMirror = reflect(ref.annotation.module);
-            nodeModule.install(closureMirror.apply([]).reflectee);
-          }
+          nodeModule.install(ref.annotation.module());
         }
         if (annotation.children == NgAnnotation.TRANSCLUDE_CHILDREN) {
           // Currently, transclude is only supported for NgDirective.
