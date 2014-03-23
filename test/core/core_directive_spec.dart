@@ -97,7 +97,9 @@ class NullParser implements Parser {
       'foo': '=>foo'
     })
 class AnnotatedIoComponent {
-  static initModule() => new Module()..type(String);
+  static initModule() => new Module()..factory(String,
+      (i) => i.get(AnnotatedIoComponent),
+      visibility: ElementBinder.getVisibility(NgDirective.LOCAL_VISIBILITY));
 
   AnnotatedIoComponent(Scope scope) {
     scope.rootScope.context['ioComponent'] = this;

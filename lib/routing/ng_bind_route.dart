@@ -32,7 +32,9 @@ class NgBindRouteDirective implements RouteProvider {
   String routeName;
   Injector _injector;
 
-  static initModule() => new Module()..factory(RouteProvider, (i) => i.get(NgBindRouteDirective));
+  static initModule() => new Module()..factory(RouteProvider,
+      (i) => i.get(NgBindRouteDirective),
+      visibility: ElementBinder.visibilityMap[NgDirective.CHILDREN_VISIBILITY]);
 
   // We inject NgRoutingHelper to force initialization of routing.
   NgBindRouteDirective(this._router, this._injector, NgRoutingHelper _);

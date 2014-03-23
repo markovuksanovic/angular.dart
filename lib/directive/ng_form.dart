@@ -23,6 +23,9 @@ part of angular.directive;
     map: const { 'ng-form': '@name' },
     visibility: NgDirective.CHILDREN_VISIBILITY)
 class NgForm extends NgControl {
+  static initModule() => new Module()..factory(NgControl, (i) => i.get(NgForm),
+      visibility: ElementBinder.visibilityMap[NgDirective.CHILDREN_VISIBILITY]);
+
   final Scope _scope;
 
   /**
@@ -48,8 +51,6 @@ class NgForm extends NgControl {
       });
     }
   }
-
-  static initModule() => new Module()..factory(NgControl, (i) => i.get(NgForm));
 
   @NgAttr('name')
   get name => _name;
