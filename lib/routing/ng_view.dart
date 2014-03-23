@@ -62,7 +62,7 @@ part of angular.routing;
 class NgViewDirective implements NgDetachAware, RouteProvider {
   static initModule() =>
       new Module()..factory(RouteProvider, (i) => i.get(RouteProvider),
-        visibility: ElementBinder.visibilityMap[NgDirective.CHILDREN_VISIBILITY]);
+        visibility: ElementBinder.getVisibility(NgDirective.CHILDREN_VISIBILITY));
 
   final NgRoutingHelper locationService;
   final ViewCache viewCache;

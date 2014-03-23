@@ -24,7 +24,7 @@ part of angular.directive;
     visibility: NgDirective.CHILDREN_VISIBILITY)
 class NgForm extends NgControl {
   static initModule() => new Module()..factory(NgControl, (i) => i.get(NgForm),
-      visibility: ElementBinder.visibilityMap[NgDirective.CHILDREN_VISIBILITY]);
+      visibility: ElementBinder.getVisibility(NgDirective.CHILDREN_VISIBILITY));
 
   final Scope _scope;
 

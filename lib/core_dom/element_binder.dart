@@ -77,11 +77,16 @@ class ElementBinder {
   bool get hasDirectivesOrEvents =>
       _usableDirectiveRefs.isNotEmpty || onEvents.isNotEmpty;
 
-  static Map<String, Visibility> visibilityMap = {
-    NgDirective.CHILDREN_VISIBILITY: null,
-    NgDirective.LOCAL_VISIBILITY: _elementOnly,
-    NgDirective.DIRECT_CHILDREN_VISIBILITY: _elementDirectChildren
-  };
+  static Visibility getVisibility(String visibility) {
+    switch (visibility) {
+      case (NgDirective.LOCAL_VISIBILITY):
+        return _elementOnly;
+      case (NgDirective.DIRECT_CHILDREN_VISIBILITY):
+        return _elementDirectChildren;
+      default:
+        return null;
+    }
+  }
 
   // DI visibility strategy allowing node-local visibility.
   static final Function _elementOnly = (Injector requesting, Injector defining) {
@@ -123,8 +128,7 @@ class ElementBinder {
 
       directiveRefs.forEach((DirectiveRef ref) {
         NgAnnotation annotation = ref.annotation;
-        var visibility = visibilityMap[ref.annotation.visibility];
-        if (visibility == null) visibility = _elementOnly;
+        var visibility = getVisibility(ref.annotation.visibility);
         if (ref.annotation is NgController) {
           scope = scope.createChild(new PrototypeMap(scope.context));
           nodeModule.value(Scope, scope);
