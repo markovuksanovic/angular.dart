@@ -173,10 +173,6 @@ class ElementBinder {
         } else {
           nodeModule.type(ref.type, visibility: visibility);
         }
-        for (var publishType in ref.annotation.publishTypes) {
-          nodeModule.factory(publishType, (Injector injector) =>
-              injector.get(ref.type), visibility: visibility);
-        }
 
         if (ref.annotation.module != null) {
           nodeModule.install(ref.annotation.module());

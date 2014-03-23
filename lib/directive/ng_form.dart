@@ -7,19 +7,19 @@ part of angular.directive;
  */
 @NgDirective(
     selector: 'form',
-    publishTypes : const <Type>[NgControl],
+    module: initModule,
     visibility: NgDirective.CHILDREN_VISIBILITY)
 @NgDirective(
     selector: 'fieldset',
-    publishTypes : const <Type>[NgControl],
+    module: initModule,
     visibility: NgDirective.CHILDREN_VISIBILITY)
 @NgDirective(
     selector: '.ng-form',
-    publishTypes : const <Type>[NgControl],
+    module: initModule,
     visibility: NgDirective.CHILDREN_VISIBILITY)
 @NgDirective(
     selector: '[ng-form]',
-    publishTypes : const <Type>[NgControl],
+    module: initModule,
     map: const { 'ng-form': '@name' },
     visibility: NgDirective.CHILDREN_VISIBILITY)
 class NgForm extends NgControl {
@@ -48,6 +48,8 @@ class NgForm extends NgControl {
       });
     }
   }
+
+  static initModule() => new Module()..factory(NgControl, (i) => i.get(NgForm));
 
   @NgAttr('name')
   get name => _name;

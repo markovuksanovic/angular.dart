@@ -57,9 +57,11 @@ part of angular.routing;
  */
 @NgDirective(
     selector: 'ng-view',
-    publishTypes: const [RouteProvider],
+    module: initModule,
     visibility: NgDirective.CHILDREN_VISIBILITY)
 class NgViewDirective implements NgDetachAware, RouteProvider {
+  static initModule() => new Module()..type(RouteProvider);
+
   final NgRoutingHelper locationService;
   final ViewCache viewCache;
   final Injector injector;
