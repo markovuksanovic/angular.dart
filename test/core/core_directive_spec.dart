@@ -68,7 +68,7 @@ void main() {
       });
     });
 
-    ddescribe("Inheritance", () {
+    describe("Inheritance", () {
       var element;
       var nodeAttrs;
 

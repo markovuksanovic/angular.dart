@@ -4,7 +4,7 @@ import '../_specs.dart';
 import 'package:angular/application_factory.dart';
 
 main() {
-  describe('RegistryMap', () {
+  ddescribe('RegistryMap', () {
     it('should allow for multiple registry keys to be added', () {
       var module = new Module()
           ..type(MyMap)
@@ -39,6 +39,20 @@ main() {
       var injector = applicationFactory().addModule(module).createInjector();
       expect(() => injector.get(MyMap), isNot(throws));
     });
+
+    it('should merge parameter map defined in annotation', () {
+      var module = new Module()
+        ..type(MyMap2)
+        ..type(B2);
+
+      var injector = dynamicApplication().addModule(module).createInjector();
+      var keys = [];
+      var types = [];
+      var map = injector.get(MyMap2);
+      map.forEach((k, t) { keys.add(k); types.add(t); });
+      expect(keys).toEqual([new AnnotationWithMap(map: const { 'foo': 'bar', 'baz': 'cux'})]);
+      expect(types).toEqual([B2]);
+    });
   });
 }
 
@@ -47,6 +61,11 @@ typedef void MyTypedef(String arg);
 class MyMap extends AnnotationMap<MyAnnotation> {
   MyMap(Injector injector, MetadataExtractor metadataExtractor)
       : super(injector, metadataExtractor);
+}
+
+class MyMap2 extends AnnotationMap<AnnotationWithMap> {
+  MyMap2(Injector injector, MetadataExtractor metadataExtractor)
+  : super(injector, metadataExtractor);
 }
 
 
@@ -62,3 +81,21 @@ class MyAnnotation {
 
 @MyAnnotation('A') @MyAnnotation('B') class A1 {}
 @MyAnnotation('A') class A2 {}
+
+class AnnotationWithMap extends NgAnnotation {
+  const AnnotationWithMap({map}):super(map: map);
+
+  AnnotationWithMap cloneWithNewMap(newMap) {
+    return new AnnotationWithMap(map: newMap);
+  }
+  String toString() {
+    StringBuffer buffer = new StringBuffer("AnnotationWithMap: [");
+    map.forEach((k, v) => buffer.write('${k}:${v} '));
+    buffer.write("]");
+    return buffer.toString();
+  }
+  operator==(other) => map.keys.every((k) => other.map.keys.contains(k));
+}
+
+@AnnotationWithMap(map: const { 'foo': 'bar'}) class B1 {}
+@AnnotationWithMap(map: const { 'baz': 'cux'}) class B2 extends B1 {}

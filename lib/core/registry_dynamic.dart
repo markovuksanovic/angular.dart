@@ -20,13 +20,29 @@ class DynamicMetadataExtractor implements MetadataExtractor {
 
   Iterable call(Type type) {
     if (reflectType(type) is TypedefMirror) return [];
-    var metadata = reflectClass(type).metadata;
-    if (metadata == null) {
-      metadata = [];
-    } else {
-      metadata =  metadata.map((InstanceMirror im) => map(type, im.reflectee));
+    ClassMirror cm = reflectClass(type);
+    var metadata;
+    if(cm.superclass != null) {
+      metadata = this.call(cm.superclass.reflectedType);
     }
+    metadata = _mergeMetadata(metadata, cm.metadata.map((InstanceMirror im) => map(type, im.reflectee) ));
+    print(type);print(metadata.length);
+
     return metadata;
+  }
+
+  Iterable<InstanceMirror> _mergeMetadata(Iterable first, Iterable second) {
+    if(first == null || first.isEmpty) return second;
+    if(second == null || second.isEmpty) return first;
+    if( first.first is NgAnnotation && second.first is NgAnnotation ) {
+      if ((first.first as NgAnnotation).map != null && (second.first as NgAnnotation).map != null) {
+        Map newMap = new Map();
+        newMap.addAll((first.first as NgAnnotation).map);
+        newMap.addAll((second.first as NgAnnotation).map);
+        return [(first.first as NgAnnotation).cloneWithNewMap(newMap)];
+      }
+    }
+    return second;
   }
 
   map(Type type, obj) {
