@@ -26,8 +26,6 @@ class DynamicMetadataExtractor implements MetadataExtractor {
       metadata = this.call(cm.superclass.reflectedType);
     }
     metadata = _mergeMetadata(metadata, cm.metadata.map((InstanceMirror im) => map(type, im.reflectee) ));
-    print(type);print(metadata.length);
-
     return metadata;
   }
 
@@ -39,7 +37,8 @@ class DynamicMetadataExtractor implements MetadataExtractor {
         Map newMap = new Map();
         newMap.addAll((first.first as NgAnnotation).map);
         newMap.addAll((second.first as NgAnnotation).map);
-        return [(first.first as NgAnnotation).cloneWithNewMap(newMap)];
+        dynamic directive = (second.first).cloneWithNewMap(newMap);
+        return [directive];
       }
     }
     return second;

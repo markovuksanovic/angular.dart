@@ -4,7 +4,7 @@ import '../_specs.dart';
 import 'package:angular/application_factory.dart';
 
 main() {
-  ddescribe('RegistryMap', () {
+  describe('RegistryMap', () {
     it('should allow for multiple registry keys to be added', () {
       var module = new Module()
           ..type(MyMap)
