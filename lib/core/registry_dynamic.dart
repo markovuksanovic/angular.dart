@@ -21,27 +21,38 @@ class DynamicMetadataExtractor implements MetadataExtractor {
   Iterable call(Type type) {
     if (reflectType(type) is TypedefMirror) return [];
     ClassMirror cm = reflectClass(type);
-    var metadata;
+    var metadata = [];
     if(cm.superclass != null) {
       metadata = this.call(cm.superclass.reflectedType);
     }
-    metadata = _mergeMetadata(metadata, cm.metadata.map((InstanceMirror im) => map(type, im.reflectee) ));
+    metadata = _mergeMetadata(metadata,
+        cm.metadata.map((InstanceMirror im) => map(type, im.reflectee) ));
     return metadata;
   }
 
-  Iterable<InstanceMirror> _mergeMetadata(Iterable first, Iterable second) {
-    if(first == null || first.isEmpty) return second;
-    if(second == null || second.isEmpty) return first;
-    if( first.first is NgAnnotation && second.first is NgAnnotation ) {
-      if ((first.first as NgAnnotation).map != null && (second.first as NgAnnotation).map != null) {
-        Map newMap = new Map();
-        newMap.addAll((first.first as NgAnnotation).map);
-        newMap.addAll((second.first as NgAnnotation).map);
-        dynamic directive = (second.first).cloneWithNewMap(newMap);
-        return [directive];
+  Iterable<NgAnnotation> _mergeMetadata(
+      Iterable<NgAnnotation> superClassMetadataList,
+      Iterable<NgAnnotation> classMetadataList) {
+
+    if(superClassMetadataList == null || superClassMetadataList.isEmpty)
+      return classMetadataList;
+    if(classMetadataList == null || classMetadataList.isEmpty)
+      return [];
+
+    var superClassMetadata = superClassMetadataList.first;
+    var classMetadata = classMetadataList.first;
+
+    if(superClassMetadata == null && classMetadata != null)
+      return [classMetadata];
+
+    if( superClassMetadata is NgAnnotation && classMetadata is NgAnnotation ) {
+      if (superClassMetadata.map != null && classMetadata.map != null) {
+        var newDirective = classMetadata.cloneWithNewMap(
+            {}..addAll(superClassMetadata.map)..addAll(classMetadata.map));
+        return [newDirective];
       }
     }
-    return second;
+    return [classMetadata];
   }
 
   map(Type type, obj) {
