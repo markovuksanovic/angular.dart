@@ -50,8 +50,36 @@ main() {
       var types = [];
       var map = injector.get(MyMap2);
       map.forEach((k, t) { keys.add(k); types.add(t); });
-      expect(keys).toEqual([new AnnotationWithMap(map: const { 'foo': 'bar', 'baz': 'cux'})]);
+      expect(keys).toEqual([new TestAnnotationWithMap(map: const { 'foo': 'bar', 'baz': 'cux'})]);
       expect(types).toEqual([B2]);
+    });
+
+    it('should merge parameter map defined in annotation', () {
+      var module = new Module()
+        ..type(MyMap2)
+        ..type(C2);
+
+      var injector = dynamicApplication().addModule(module).createInjector();
+      var keys = [];
+      var types = [];
+      var map = injector.get(MyMap2);
+      map.forEach((k, t) { keys.add(k); types.add(t); });
+      expect(keys).toEqual([new TestAnnotationWithMap(map: const { 'baz': 'cux'})]);
+      expect(types).toEqual([C2]);
+    });
+
+    it('should merge parameter map defined in annotation', () {
+      var module = new Module()
+        ..type(MyMap2)
+        ..type(D3);
+
+      var injector = dynamicApplication().addModule(module).createInjector();
+      var keys = [];
+      var types = [];
+      var map = injector.get(MyMap2);
+      map.forEach((k, t) { keys.add(k); types.add(t); });
+      expect(keys).toEqual([new TestAnnotationWithMap(map: const { 'foo': 'bar', 'baz': 'cux'})]);
+      expect(types).toEqual([D3]);
     });
   });
 }
@@ -63,7 +91,7 @@ class MyMap extends AnnotationMap<MyAnnotation> {
       : super(injector, metadataExtractor);
 }
 
-class MyMap2 extends AnnotationMap<AnnotationWithMap> {
+class MyMap2 extends AnnotationMap<TestAnnotationWithMap> {
   MyMap2(Injector injector, MetadataExtractor metadataExtractor)
   : super(injector, metadataExtractor);
 }
@@ -82,11 +110,11 @@ class MyAnnotation {
 @MyAnnotation('A') @MyAnnotation('B') class A1 {}
 @MyAnnotation('A') class A2 {}
 
-class AnnotationWithMap extends NgAnnotation {
-  const AnnotationWithMap({map}):super(map: map);
+class TestAnnotationWithMap extends NgAnnotation {
+  const TestAnnotationWithMap({map}):super(map: map);
 
-  AnnotationWithMap cloneWithNewMap(newMap) {
-    return new AnnotationWithMap(map: newMap);
+  TestAnnotationWithMap cloneWithNewMap(newMap) {
+    return new TestAnnotationWithMap(map: newMap);
   }
   String toString() {
     StringBuffer buffer = new StringBuffer("AnnotationWithMap: [");
@@ -97,5 +125,14 @@ class AnnotationWithMap extends NgAnnotation {
   operator==(other) => map.keys.every((k) => other.map.keys.contains(k));
 }
 
-@AnnotationWithMap(map: const { 'foo': 'bar'}) class B1 {}
-@AnnotationWithMap(map: const { 'baz': 'cux'}) class B2 extends B1 {}
+@TestAnnotationWithMap(map: const { 'foo': 'bar'}) class B1 {}
+@TestAnnotationWithMap(map: const { 'baz': 'cux'}) class B2 extends B1 {}
+
+class C1 {}
+@TestAnnotationWithMap(map: const { 'baz': 'cux'}) class C2 extends C1 {}
+
+@TestAnnotationWithMap(map: const { 'baz': 'cux'}) class D1 {}
+class D2 extends D1 {}
+@TestAnnotationWithMap(map: const { 'foo': 'bar'}) class D3 extends D2 {}
+
+
