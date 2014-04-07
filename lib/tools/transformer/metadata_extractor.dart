@@ -200,11 +200,11 @@ class AnnotationExtractor {
   final AssetId outputId;
 
   static const List<String> _angularAnnotationNames = const [
-    'angular.core.annotation_src.NgAttr',
-    'angular.core.annotation_src.NgOneWay',
-    'angular.core.annotation_src.NgOneWayOneTime',
-    'angular.core.annotation_src.NgTwoWay',
-    'angular.core.annotation_src.NgCallback'
+    'angular.core.annotation.NgAttr',
+    'angular.core.annotation.NgOneWay',
+    'angular.core.annotation.NgOneWayOneTime',
+    'angular.core.annotation.NgTwoWay',
+    'angular.core.annotation.NgCallback'
   ];
 
   static const Map<String, String> _annotationToMapping = const {
@@ -229,9 +229,9 @@ class AnnotationExtractor {
       }
       _annotationElements.add(type.unnamedConstructor);
     }
-    ngAnnotationType = resolver.getType('angular.core.annotation_src.AbstractNgAnnotation');
+    ngAnnotationType = resolver.getType('angular.core.annotation.NgAnnotation');
     if (ngAnnotationType == null) {
-      logger.warning('Unable to resolve AbstractNgAnnotation, '
+      logger.warning('Unable to resolve NgAnnotation, '
           'skipping member annotations.');
     }
   }
@@ -250,8 +250,9 @@ class AnnotationExtractor {
     if (!visitor.hasAnnotations) return null;
 
     var type = new AnnotatedType(cls);
+    // TODO: why don't we pass this as parameter into ctor;
     type.annotations = visitor.classAnnotations
-        .where((annotation) {
+        .where((Annotation annotation) {
           var element = annotation.element;
           if (element != null && !element.isPublic) {
             warn('Annotation $annotation is not public.',
@@ -260,10 +261,11 @@ class AnnotationExtractor {
           }
           if (element is! ConstructorElement) {
             // Only keeping constructor elements.
+            // TODO: What else can it be?
             return false;
           }
           ConstructorElement ctor = element;
-          var cls = ctor.enclosingElement;
+          ClassElement cls = ctor.enclosingElement; // enclosing element of a constructor should be class?
           if (!cls.isPublic) {
             warn('Annotation $annotation is not public.',
                 annotation.parent.element);
@@ -292,18 +294,20 @@ class AnnotationExtractor {
       _foldMemberAnnotations(memberAnnotations, type);
     }
 
+    // TODO: we could return this before the last block  and not process any member
+    // annotations if there are no class annotations.
     if (type.annotations.isEmpty) return null;
 
     return type;
   }
 
-  /// Folds all AttrFieldAnnotations into the AbstractNgAnnotation annotation on the
+  /// Folds all AttrFieldAnnotations into the NgAnnotation annotation on the
   /// class.
   void _foldMemberAnnotations(Map<String, Annotation> memberAnnotations,
       AnnotatedType type) {
-    // Filter down to AbstractNgAnnotation constructors.
-    var ngAnnotations = type.annotations.where((a) {
-      var element = a.element;
+    // Filter down to NgAnnotation constructors.
+    var ngAnnotations = type.annotations.where((Annotation a) {
+      Element element = a.element;
       if (element is! ConstructorElement) return false;
       return element.enclosingElement.type.isAssignableTo(
           ngAnnotationType.type);
@@ -412,6 +416,10 @@ class _AnnotationVisitor extends GeneralizingAstVisitor {
 
   _AnnotationVisitor(this.allowedMemberAnnotations);
 
+  // TODO If we find a Class with annotation, we need to go visit it superclass
+  // to check if it has any NgAttr annotations. If it has, we need to add them
+  // to member annotations. Later this member annotations will be folded into
+  // a single NgAnnotation map
   void visitAnnotation(Annotation annotation) {
     var parent = annotation.parent;
     if (parent is! Declaration) return;
