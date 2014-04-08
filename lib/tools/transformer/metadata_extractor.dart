@@ -426,6 +426,15 @@ class _AnnotationVisitor extends GeneralizingAstVisitor {
 
     if (parent.element is ClassElement) {
       classAnnotations.add(annotation);
+
+      // TODO check if classDeclaration
+      // TODO check extendsClause
+      // TODO extendsClause has a superClass
+      // use visitChildren to visit superClass
+      ClassElement supertype;
+      if((supertype = parent.element.supertype) != null ) {
+        List<String> annotatedMembersInSuperClass = _getAnnotatedMembers(supertype);
+      }
     } else if (allowedMemberAnnotations.contains(annotation.element)) {
       if (parent is MethodDeclaration) {
         memberAnnotations.putIfAbsent(parent.name.name, () => [])
@@ -439,4 +448,19 @@ class _AnnotationVisitor extends GeneralizingAstVisitor {
 
   bool get hasAnnotations =>
       !classAnnotations.isEmpty || !memberAnnotations.isEmpty;
+
+  List<String> _getAnnotatedMembers(ClassElement classElement) {
+    List<String> annotatedMembersInSuperType;
+      if(classElement.supertype != null) {
+        annotatedMembersInSuperType = _getAnnotatedMembers(classElement.supertype);
+      } else {
+        annotatedMembersInSuperType = [];
+      }
+
+      List<FieldElement> fields = classElement.fields;
+      fields.forEach((FieldElement fe) {
+        List<ElementAnnotation> metadata = fe.metadata;
+      });
+
+  }
 }
