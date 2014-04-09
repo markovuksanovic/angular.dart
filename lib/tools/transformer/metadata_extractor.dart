@@ -238,14 +238,24 @@ class AnnotationExtractor {
 
   /// Extracts all of the annotations for the specified class.
   AnnotatedType extractAnnotations(ClassElement cls) {
-    if (resolver.getImportUri(cls.library, from: outputId) == null) {
-      warn('Dropping annotations for ${cls.name} because the '
-          'containing file cannot be imported (must be in a lib folder).', cls);
-      return null;
-    }
-
+    var element = cls;
     var visitor = new _AnnotationVisitor(_annotationElements);
-    cls.node.accept(visitor);
+    while(element != null) {
+      if (resolver.getImportUri(element.library, from: outputId) == null) {
+        warn('Dropping annotations for ${element.name} because the '
+            'containing file cannot be imported (must be in a lib folder).', element);
+        return null;
+      }
+
+      element.node.accept(visitor);
+
+      if(element.supertype!=null) {
+        visitor.visitingSupertype = true;
+        element = element.supertype.element;
+      } else {
+        element = null;
+      }
+    }
 
     if (!visitor.hasAnnotations) return null;
 
@@ -413,28 +423,17 @@ class _AnnotationVisitor extends GeneralizingAstVisitor {
   final List<Element> allowedMemberAnnotations;
   final List<Annotation> classAnnotations = [];
   final Map<String, List<Annotation>> memberAnnotations = {};
+  var visitingSupertype = false;
 
   _AnnotationVisitor(this.allowedMemberAnnotations);
 
-  // TODO If we find a Class with annotation, we need to go visit it superclass
-  // to check if it has any NgAttr annotations. If it has, we need to add them
-  // to member annotations. Later this member annotations will be folded into
-  // a single NgAnnotation map
   void visitAnnotation(Annotation annotation) {
     var parent = annotation.parent;
     if (parent is! Declaration) return;
 
-    if (parent.element is ClassElement) {
+    if (parent.element is ClassElement && !visitingSupertype) {
       classAnnotations.add(annotation);
 
-      // TODO check if classDeclaration
-      // TODO check extendsClause
-      // TODO extendsClause has a superClass
-      // use visitChildren to visit superClass
-      ClassElement supertype;
-      if((supertype = parent.element.supertype) != null ) {
-        List<String> annotatedMembersInSuperClass = _getAnnotatedMembers(supertype);
-      }
     } else if (allowedMemberAnnotations.contains(annotation.element)) {
       if (parent is MethodDeclaration) {
         memberAnnotations.putIfAbsent(parent.name.name, () => [])
@@ -448,19 +447,4 @@ class _AnnotationVisitor extends GeneralizingAstVisitor {
 
   bool get hasAnnotations =>
       !classAnnotations.isEmpty || !memberAnnotations.isEmpty;
-
-  List<String> _getAnnotatedMembers(ClassElement classElement) {
-    List<String> annotatedMembersInSuperType;
-      if(classElement.supertype != null) {
-        annotatedMembersInSuperType = _getAnnotatedMembers(classElement.supertype);
-      } else {
-        annotatedMembersInSuperType = [];
-      }
-
-      List<FieldElement> fields = classElement.fields;
-      fields.forEach((FieldElement fe) {
-        List<ElementAnnotation> metadata = fe.metadata;
-      });
-
-  }
 }
