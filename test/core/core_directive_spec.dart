@@ -165,14 +165,17 @@ class Bad2Component {
   set foo(val) {}
 }
 
-@NgDirective(selector: '[sub]', map: const { "bar": "=>bar" })
+@NgDirective(selector: '[sub]')
 class Sub extends Base {
+  @NgOneWay('bar')
   String qux;
 }
 
-@NgDirective(map: const { "foo": "=>foo" })
 class Base {
   @NgOneWay('baz')
   String baz;
+
+  @NgOneWay('foo')
+  String foo;
 }
 

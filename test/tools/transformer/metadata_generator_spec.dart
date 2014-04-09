@@ -65,7 +65,6 @@ main() {
             'a|web/main.dart': '''
                 import 'package:angular/angular.dart';
 
-                @NgDirective(selector: r'[*=/{{.*}}/]')
                 class Engine {
                   @NgOneWay('another-expression')
                   String anotherExpression;
@@ -91,14 +90,6 @@ main() {
             'import \'package:angular/angular.dart\' as import_1;',
           ],
           classes: {
-            'import_0.Engine': [
-              'const import_1.NgDirective(selector: r\'[*=/{{.*}}/]\', '
-                'map: const {'
-                '\'another-expression\': \'=>anotherExpression\', '
-                '\'callback\': \'&callback\', '
-                '\'two-way-stuff\': \'<=>twoWayStuff\''
-                '})',
-            ],
             'import_0.InternalCombustionEngine': [
               'const import_1.NgDirective(selector: r\'[*=/{{.*}}/]\', '
                 'map: const {'
