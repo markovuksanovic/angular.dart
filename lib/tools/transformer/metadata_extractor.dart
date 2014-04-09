@@ -237,23 +237,22 @@ class AnnotationExtractor {
   }
 
   /// Extracts all of the annotations for the specified class.
-  AnnotatedType extractAnnotations(ClassElement cls) {
-    var element = cls;
+  AnnotatedType extractAnnotations(ClassElement classElement) {
     var visitor = new _AnnotationVisitor(_annotationElements);
-    while(element != null) {
-      if (resolver.getImportUri(element.library, from: outputId) == null) {
-        warn('Dropping annotations for ${element.name} because the '
-            'containing file cannot be imported (must be in a lib folder).', element);
+    while(classElement != null) {
+      if (resolver.getImportUri(classElement.library, from: outputId) == null) {
+        warn('Dropping annotations for ${classElement.name} because the '
+            'containing file cannot be imported (must be in a lib folder).', classElement);
         return null;
       }
 
-      element.node.accept(visitor);
+      classElement.node.accept(visitor);
 
-      if(element.supertype!=null) {
+      if(classElement.supertype!=null) {
         visitor.visitingSupertype = true;
-        element = element.supertype.element;
+        classElement = classElement.supertype.element;
       } else {
-        element = null;
+        classElement = null;
       }
     }
 
