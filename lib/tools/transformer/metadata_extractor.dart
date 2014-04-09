@@ -237,29 +237,28 @@ class AnnotationExtractor {
   }
 
   /// Extracts all of the annotations for the specified class.
-  AnnotatedType extractAnnotations(ClassElement classElement) {
+  AnnotatedType extractAnnotations(cls) {
     var visitor = new _AnnotationVisitor(_annotationElements);
-    while(classElement != null) {
-      if (resolver.getImportUri(classElement.library, from: outputId) == null) {
-        warn('Dropping annotations for ${classElement.name} because the '
-            'containing file cannot be imported (must be in a lib folder).', classElement);
+    while(cls != null) {
+      if (resolver.getImportUri(cls.library, from: outputId) == null) {
+        warn('Dropping annotations for ${cls.name} because the '
+            'containing file cannot be imported (must be in a lib folder).', cls);
         return null;
       }
 
-      classElement.node.accept(visitor);
+      cls.node.accept(visitor);
 
-      if(classElement.supertype!=null) {
+      if(cls.supertype!=null) {
         visitor.visitingSupertype = true;
-        classElement = classElement.supertype.element;
+        cls = cls.supertype.element;
       } else {
-        classElement = null;
+        cls = null;
       }
     }
 
     if (!visitor.hasAnnotations) return null;
 
     var type = new AnnotatedType(cls);
-    // TODO: why don't we pass this as parameter into ctor;
     type.annotations = visitor.classAnnotations
         .where((Annotation annotation) {
           var element = annotation.element;
@@ -274,7 +273,7 @@ class AnnotationExtractor {
             return false;
           }
           ConstructorElement ctor = element;
-          ClassElement cls = ctor.enclosingElement; // enclosing element of a constructor should be class?
+          var cls = ctor.enclosingElement;
           if (!cls.isPublic) {
             warn('Annotation $annotation is not public.',
                 annotation.parent.element);
