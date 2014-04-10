@@ -1,6 +1,7 @@
 library angular.source_metadata_extractor ;
 
 import 'package:analyzer/src/generated/ast.dart';
+import 'package:analyzer/src/generated/element.dart';
 
 import 'package:angular/tools/source_crawler.dart';
 import 'package:angular/tools/common.dart';
@@ -118,7 +119,10 @@ class DirectiveMetadataCollectingVisitor {
   List<DirectiveMetadata> metadata = <DirectiveMetadata>[];
 
   call(CompilationUnit cu) {
+    print('Processing: ${cu.element.displayName}');
     cu.declarations.forEach((CompilationUnitMember declaration) {
+      if(declaration.element != null)
+        print('Processing declaration: ${declaration.element.displayName}');
       // We only care about classes.
       if (declaration is! ClassDeclaration) return;
       ClassDeclaration clazz = declaration;
@@ -192,8 +196,73 @@ class DirectiveMetadataCollectingVisitor {
           }
         });
       }
+
+      // Check superclass for presence of attr mapping annotations
+      if (meta != null) {
+        ClassElement superClass = clazz.element.supertype.element;
+        List<FieldElement> fields = superClass.fields;
+        fields.forEach((FieldElement fe) {
+          List<ElementAnnotation> metadata = fe.metadata;
+          metadata.forEach((ElementAnnotation ea) {
+            if(ea.element.node != null) {
+              print('${ea.element.node}');
+            }
+            if(['NgAttr'].contains(ea.element.enclosingElement.type.name)) {
+              var value = ea.element;
+             meta.attributeMappings[ea.element.enclosingElement.type.name] = '@baseField';
+            }
+          });
+          print('FieldElement: ${fe.displayName}');
+        });
+
+//        superClass.fields.forEach((FieldElement member) {
+//            member.metadata.forEach((ElementAnnotation ann) {
+//              String name = ann.element.enclosingElement.type.name;
+//              if (_attrAnnotationsToSpec.containsKey(name)) {
+//                String fieldName = member.name;
+//                StringLiteral attNameLiteral = ann.arguments.arguments.first;
+//                meta.attributeMappings[attNameLiteral.stringValue] =
+//                _attrAnnotationsToSpec[ann.name.name] + fieldName;
+//              }
+//            });
+//        });
+      }
     });
   }
+}
+
+/**
+ * AST visitor which walks the current AST and finds all annotated
+ * classes and members.
+ */
+class _AnnotationVisitor extends GeneralizingAstVisitor {
+  final List<Element> allowedMemberAnnotations;
+  final List<Annotation> classAnnotations = [];
+  final Map<String, List<Annotation>> memberAnnotations = {};
+  var visitingSupertype = false;
+
+  _AnnotationVisitor(this.allowedMemberAnnotations);
+
+  void visitAnnotation(Annotation annotation) {
+    var parent = annotation.parent;
+    if (parent is! Declaration) return;
+
+    if (parent.element is ClassElement && !visitingSupertype) {
+      classAnnotations.add(annotation);
+
+    } else if (allowedMemberAnnotations.contains(annotation.element)) {
+      if (parent is MethodDeclaration) {
+        memberAnnotations.putIfAbsent(parent.name.name, () => [])
+        .add(annotation);
+      } else if (parent is FieldDeclaration) {
+        var name = parent.fields.variables.first.name.name;
+        memberAnnotations.putIfAbsent(name, () => []).add(annotation);
+      }
+    }
+  }
+
+  bool get hasAnnotations =>
+  !classAnnotations.isEmpty || !memberAnnotations.isEmpty;
 }
 
 List<String> getStringValues(ListLiteral listLiteral) {
