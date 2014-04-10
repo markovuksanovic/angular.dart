@@ -9,20 +9,21 @@ class HelloWorldController {
   String name = "world";
 }
 
+@NgDirective(selector: '[test]')
 class TestDirectiveBase {
   @NgOneWay('baseField')
   var baseField;
 }
 
 @NgDirective(selector: '[test]')
-class TestDirective {
-  @NgOneWay('field')
+class TestDirective extends TestDirectiveBase {
+  @NgAttr('field')
   var field;
   Element element;
 
   TestDirective(this.element) {
     element.onClick.listen((e) {
-      //print(baseField);
+      print(baseField);
       print(field);
     });
   }

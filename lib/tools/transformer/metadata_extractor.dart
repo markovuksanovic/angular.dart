@@ -200,11 +200,11 @@ class AnnotationExtractor {
   final AssetId outputId;
 
   static const List<String> _angularAnnotationNames = const [
-    'angular.core.annotation.NgAttr',
-    'angular.core.annotation.NgOneWay',
-    'angular.core.annotation.NgOneWayOneTime',
-    'angular.core.annotation.NgTwoWay',
-    'angular.core.annotation.NgCallback'
+      'angular.core.annotation_src.NgAttr',
+      'angular.core.annotation_src.NgOneWay',
+      'angular.core.annotation_src.NgOneWayOneTime',
+      'angular.core.annotation_src.NgTwoWay',
+      'angular.core.annotation_src.NgCallback'
   ];
 
   static const Map<String, String> _annotationToMapping = const {
@@ -229,9 +229,9 @@ class AnnotationExtractor {
       }
       _annotationElements.add(type.unnamedConstructor);
     }
-    ngAnnotationType = resolver.getType('angular.core.annotation.AbstractNgAnnotation');
+    ngAnnotationType = resolver.getType('angular.core.annotation_src.AbstractNgAnnotation');
     if (ngAnnotationType == null) {
-      logger.warning('Unable to resolve NgAnnotation, '
+      logger.warning('Unable to resolve AbstractNgAnnotation, '
           'skipping member annotations.');
     }
   }
@@ -246,7 +246,6 @@ class AnnotationExtractor {
             'containing file cannot be imported (must be in a lib folder).', classElement);
         return null;
       }
-      print('${classElement.displayName}: ${classElement.node != null}');
       if(classElement.node != null)
         classElement.node.accept(visitor);
 
@@ -311,16 +310,14 @@ class AnnotationExtractor {
     return type;
   }
 
-  /// Folds all AttrFieldAnnotations into the NgAnnotation annotation on the
+  /// Folds all AttrFieldAnnotations into the AbstractNgAnnotation annotation on the
   /// class.
   void _foldMemberAnnotations(Map<String, Annotation> memberAnnotations,
       AnnotatedType type) {
-    // Filter down to NgAnnotation constructors.
+    // Filter down to AbstractNgAnnotation constructors.
     var ngAnnotations = type.annotations.where((Annotation a) {
       Element element = a.element;
       if (element is! ConstructorElement) return false;
-      print('test');
-      print('${element.enclosingElement} - ${element.enclosingElement} - ${ngAnnotationType.type}');
       return element.enclosingElement.type.isAssignableTo(
           ngAnnotationType.type);
     });
