@@ -9,17 +9,15 @@ class HelloWorldController {
   String name = "world";
 }
 
-@NgDirective(selector: '[test]', map: const {
-    'baseField' : '@baseField'
-})
+@NgDirective(selector: '[test]')
 class TestDirectiveBase {
+  @NgAttr('baseField')
   var baseField;
 }
 
-@NgDirective(selector: '[test]', map: const {
-  'field' : '@field'
-})
+@NgDirective(selector: '[test]')
 class TestDirective extends TestDirectiveBase {
+  @NgAttr('field')
   var field;
   Element element;
 

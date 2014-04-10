@@ -76,7 +76,7 @@ void main() {
         module..type(Sub)..type(Base);
       });
 
-      it("should extract attr map from annotated component which inherits other component", (DirectiveMap directives) {
+      iit("should extract attr map from annotated component which inherits other component", (DirectiveMap directives) {
         var annotations = directives.annotationsFor(Sub);
         expect(annotations.length).toEqual(1);
         expect(annotations[0] is NgDirective).toBeTruthy();

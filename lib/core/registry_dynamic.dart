@@ -21,37 +21,48 @@ class DynamicMetadataExtractor implements MetadataExtractor {
   Iterable call(Type type) {
     if (reflectType(type) is TypedefMirror) return [];
     ClassMirror cm = reflectClass(type);
-    var metadata = [];
-    if(cm.superclass != null) {
-      metadata = this.call(cm.superclass.reflectedType);
+    if(cm.simpleName == new Symbol("Sub"))
+      print(cm);
+
+    var metadata = reflectClass(type).metadata;
+    if (metadata == null) {
+      metadata = [];
+    } else {
+      metadata =  metadata.map((InstanceMirror im) {
+        map(type, im.reflectee);
+      });
     }
-    metadata = _mergeMetadata(metadata,
-        cm.metadata.map((InstanceMirror im) => map(type, im.reflectee) ));
     return metadata;
   }
 
-  Iterable _mergeMetadata(
-      Iterable superClassMetadataList, Iterable classMetadataList) {
-
-    if(superClassMetadataList == null || superClassMetadataList.isEmpty)
-      return classMetadataList;
-    if(classMetadataList == null || classMetadataList.isEmpty)
-      return superClassMetadataList;
-
-    var superClassMetadata = superClassMetadataList.first;
-    var classMetadata = classMetadataList.first;
-
-    if(superClassMetadata == null && classMetadata != null)
-      return [classMetadata];
-
-    if( superClassMetadata is NgAnnotation && classMetadata is NgAnnotation ) {
-      if (superClassMetadata.map != null && classMetadata.map != null) {
-        var newDirective = classMetadata.cloneWithNewMap(
-            _mergeMaps(superClassMetadata.map, classMetadata.map));
-        return [newDirective];
-      }
+  Map<String, AttrFieldAnnotation> _extractMappingsFromSuperTypes(ClassMirror cm) {
+    var fields = <String, AttrFieldAnnotation>{};
+    if(cm.superclass != null) {
+      fields = _extractMappingsFromSuperTypes(cm.superclass);
+    } else {
+      fields = {};
     }
-    return [classMetadata];
+    Map<Symbol, DeclarationMirror> declarations = cm.declarations;
+    declarations.forEach((symbol, dm) {
+      if(dm is VariableMirror ||
+          dm is MethodMirror && (dm.isGetter || dm.isSetter)) {
+        var fieldName = MirrorSystem.getName(symbol);
+        if (dm is MethodMirror && dm.isSetter) {
+          // Remove "=" from the end of the setter.
+          fieldName = fieldName.substring(0, fieldName.length - 1);
+        }
+        dm.metadata.forEach((InstanceMirror meta) {
+          if (_fieldAnnotations.contains(meta.type)) {
+            if (fields.containsKey(fieldName)) {
+              throw 'Attribute annotation for $fieldName is defined more '
+                'than once in ${cm.reflectedType}';
+            }
+            fields[fieldName] = meta.reflectee as AttrFieldAnnotation;
+          }
+        });
+      }
+    });
+    return fields;
   }
 
   map(Type type, obj) {
