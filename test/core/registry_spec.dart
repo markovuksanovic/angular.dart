@@ -40,7 +40,7 @@ main() {
       expect(() => injector.get(MyMap), isNot(throws));
     });
 
-    it('should merge parameter map defined in annotation', () {
+    xit('should merge parameter map defined in annotation', () {
       var module = new Module()
         ..type(MyMap2)
         ..type(B2);
@@ -54,7 +54,7 @@ main() {
       expect(types).toEqual([B2]);
     });
 
-    it('should merge parameter map defined in annotation', () {
+    xit('should merge parameter map defined in annotation', () {
       var module = new Module()
         ..type(MyMap2)
         ..type(C2);
@@ -68,7 +68,7 @@ main() {
       expect(types).toEqual([C2]);
     });
 
-    it('should merge parameter map defined in annotation', () {
+    xit('should merge parameter map defined in annotation', () {
       var module = new Module()
         ..type(MyMap2)
         ..type(D3);
@@ -110,7 +110,7 @@ class MyAnnotation {
 @MyAnnotation('A') @MyAnnotation('B') class A1 {}
 @MyAnnotation('A') class A2 {}
 
-class TestAnnotationWithMap extends NgAnnotation {
+class TestAnnotationWithMap extends AbstractNgAnnotation {
   const TestAnnotationWithMap({map}):super(map: map);
 
   TestAnnotationWithMap cloneWithNewMap(newMap) {

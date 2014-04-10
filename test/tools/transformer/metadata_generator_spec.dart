@@ -58,7 +58,7 @@ main() {
           });
     });
 
-    iit('should extract member metadata from superclass', () {
+    it('should extract member metadata from superclass', () {
       return generates(phases,
           inputs: {
             'angular|lib/angular.dart': libAngular,
@@ -99,7 +99,9 @@ main() {
                 '\'two-way-stuff\': \'<=>twoWayStuff\''
                 '})',
             ]
-          });
+          },
+          messages: ['warning: Found field annotation but no class directives.'
+                     ' (web/main.dart 2 16)']);
     });
 
     it('should warn on multiple annotations', () {

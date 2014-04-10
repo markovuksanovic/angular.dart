@@ -76,7 +76,7 @@ void main() {
         module..type(Sub)..type(Base);
       });
 
-      iit("should extract attr map from annotated component which inherits other component", (DirectiveMap directives) {
+      it("should extract attr map from annotated component which inherits other component", (DirectiveMap directives) {
         var annotations = directives.annotationsFor(Sub);
         expect(annotations.length).toEqual(1);
         expect(annotations[0] is NgDirective).toBeTruthy();
@@ -168,7 +168,7 @@ class Bad2Component {
 @NgDirective(selector: '[sub]')
 class Sub extends Base {
   @NgOneWay('bar')
-  String qux;
+  String bar;
 }
 
 class Base {

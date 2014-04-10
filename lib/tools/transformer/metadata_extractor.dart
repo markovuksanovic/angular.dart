@@ -229,7 +229,7 @@ class AnnotationExtractor {
       }
       _annotationElements.add(type.unnamedConstructor);
     }
-    ngAnnotationType = resolver.getType('angular.core.annotation.NgAnnotation');
+    ngAnnotationType = resolver.getType('angular.core.annotation.AbstractNgAnnotation');
     if (ngAnnotationType == null) {
       logger.warning('Unable to resolve NgAnnotation, '
           'skipping member annotations.');
@@ -319,6 +319,8 @@ class AnnotationExtractor {
     var ngAnnotations = type.annotations.where((Annotation a) {
       Element element = a.element;
       if (element is! ConstructorElement) return false;
+      print('test');
+      print('${element.enclosingElement} - ${element.enclosingElement} - ${ngAnnotationType.type}');
       return element.enclosingElement.type.isAssignableTo(
           ngAnnotationType.type);
     });
