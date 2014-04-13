@@ -119,10 +119,8 @@ class DirectiveMetadataCollectingVisitor {
   List<DirectiveMetadata> metadata = <DirectiveMetadata>[];
 
   call(CompilationUnit cu) {
-    print('Processing: ${cu.element.displayName}');
     cu.declarations.forEach((CompilationUnitMember declaration) {
       if(declaration.element != null)
-        print('Processing declaration: ${declaration.element.displayName}');
       // We only care about classes.
       if (declaration is! ClassDeclaration) return;
       ClassDeclaration clazz = declaration;
