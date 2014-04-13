@@ -122,6 +122,8 @@ class DirectiveMetadataCollectingVisitor {
     cu.declarations.forEach((CompilationUnitMember declaration) {
       if(declaration.element != null)
       // We only care about classes.
+      print('${declaration}');
+      print('Test2: ${declaration is! ClassDeclaration}');
       if (declaration is! ClassDeclaration) return;
       ClassDeclaration clazz = declaration;
       // Check class annotations for presense of NgComponent/NgDirective.
@@ -206,57 +208,7 @@ class DirectiveMetadataCollectingVisitor {
         });
       }
     });
-//    List<FieldElement> fields = classElement.fields;
-//    fields.forEach((FieldElement fe) {
-//      fe.metadata.forEach((ElementAnnotation ea) {
-//        var node = ea.element.node;
-//        meta.attributeMappings[fe.name] =
-//        '${_attrAnnotationsToSpec[ea.element.enclosingElement.name]}${fe.name}';
-//      });
-//    });
-//
-//    List<PropertyAccessorElement> accessors = classElement.accessors;
-//    accessors.forEach((PropertyAccessorElement pae) {
-//      pae.metadata.forEach((ElementAnnotation ea) {
-//        meta.attributeMappings[ea.element.enclosingElement.name] =
-//        '${_attrAnnotationsToSpec[ea.element.enclosingElement.name]}${pae.name}';
-//      });
-//    });
   }
-}
-
-/**
- * AST visitor which walks the current AST and finds all annotated
- * classes and members.
- */
-class _AnnotationVisitor extends GeneralizingAstVisitor {
-  final List<Element> allowedMemberAnnotations;
-  final List<Annotation> classAnnotations = [];
-  final Map<String, List<Annotation>> memberAnnotations = {};
-  var visitingSupertype = false;
-
-  _AnnotationVisitor(this.allowedMemberAnnotations);
-
-  void visitAnnotation(Annotation annotation) {
-    var parent = annotation.parent;
-    if (parent is! Declaration) return;
-
-    if (parent.element is ClassElement && !visitingSupertype) {
-      classAnnotations.add(annotation);
-
-    } else if (allowedMemberAnnotations.contains(annotation.element)) {
-      if (parent is MethodDeclaration) {
-        memberAnnotations.putIfAbsent(parent.name.name, () => [])
-        .add(annotation);
-      } else if (parent is FieldDeclaration) {
-        var name = parent.fields.variables.first.name.name;
-        memberAnnotations.putIfAbsent(name, () => []).add(annotation);
-      }
-    }
-  }
-
-  bool get hasAnnotations =>
-  !classAnnotations.isEmpty || !memberAnnotations.isEmpty;
 }
 
 List<String> getStringValues(ListLiteral listLiteral) {
