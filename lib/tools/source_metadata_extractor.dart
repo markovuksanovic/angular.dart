@@ -122,8 +122,6 @@ class DirectiveMetadataCollectingVisitor {
     cu.declarations.forEach((CompilationUnitMember declaration) {
       if(declaration.element != null)
       // We only care about classes.
-      print('${declaration}');
-      print('Test2: ${declaration is! ClassDeclaration}');
       if (declaration is! ClassDeclaration) return;
       ClassDeclaration clazz = declaration;
       // Check class annotations for presense of NgComponent/NgDirective.
