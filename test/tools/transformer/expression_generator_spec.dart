@@ -98,9 +98,10 @@ main() {
                 import 'package:angular/angular.dart';
 
                 @NgComponent(
+                    templateUrl: 'lib/foo.html',
                     selector: 'my-component')
                 class FooComponent extends BarComponent {
-                  NgAttr('foo')
+                  @NgAttr('foo')
                   var foo;
                 }
 
@@ -118,8 +119,8 @@ main() {
                 <script src='main.dart' type='application/dart'></script>''',
           'angular|lib/angular.dart': libAngular,
       },
-      getters: ['template', 'foo', 'bar'],
-      setters: ['template', 'foo', 'bar'],
+      getters: ['foo', 'bar', 'template'],
+      setters: ['foo', 'bar', 'template'],
       symbols: []);
     });
 

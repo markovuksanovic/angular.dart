@@ -171,7 +171,8 @@ class DirectiveMetadataCollectingVisitor {
       if (meta != null) {
         ClassElement classElement = clazz.element;
         while(classElement != null) {
-          _extractMappingsFromClass(classElement, meta);
+          var node=classElement.node;
+          _extractMappingsFromClass(classElement.node, meta);
           if (classElement.supertype != null) {
             classElement = classElement.supertype.element;
           } else {
@@ -182,22 +183,45 @@ class DirectiveMetadataCollectingVisitor {
     });
   }
 
-  _extractMappingsFromClass(ClassElement classElement, DirectiveMetadata meta) {
-    List<FieldElement> fields = classElement.fields;
-    fields.forEach((FieldElement fe) {
-      fe.metadata.forEach((ElementAnnotation ea) {
-        meta.attributeMappings[ea.element.enclosingElement.name] =
-        '${_attrAnnotationsToSpec[ea.element.enclosingElement.name]}${fe.name}';
-      });
+  _extractMappingsFromClass(ClassDeclaration classElement, DirectiveMetadata meta) {
+    classElement.members.forEach((ClassMember member) {
+      if (member is FieldDeclaration || (member is MethodDeclaration && (member.isSetter || member.isGetter))) {
+        member.metadata.forEach((Annotation ann) {
+          if (_attrAnnotationsToSpec.containsKey(ann.name.name)) {
+            String fieldName;
+            if (member is FieldDeclaration) {
+              fieldName = member.fields.variables.first.name.name;
+            } else { // MethodDeclaration
+              fieldName = (member as MethodDeclaration).name.name;
+            }
+            StringLiteral attNameLiteral = ann.arguments.arguments.first;
+            if (meta.attributeMappings
+            .containsKey(attNameLiteral.stringValue)) {
+              throw 'Attribute mapping already defined for '
+              '${classElement.name}.$fieldName';
+            }
+            meta.attributeMappings[attNameLiteral.stringValue] =
+            _attrAnnotationsToSpec[ann.name.name] + fieldName;
+          }
+        });
+      }
     });
-
-    List<PropertyAccessorElement> accessors = classElement.accessors;
-    accessors.forEach((PropertyAccessorElement pae) {
-      pae.metadata.forEach((ElementAnnotation ea) {
-        meta.attributeMappings[ea.element.enclosingElement.name] =
-        '${_attrAnnotationsToSpec[ea.element.enclosingElement.name]}${pae.name}';
-      });
-    });
+//    List<FieldElement> fields = classElement.fields;
+//    fields.forEach((FieldElement fe) {
+//      fe.metadata.forEach((ElementAnnotation ea) {
+//        var node = ea.element.node;
+//        meta.attributeMappings[fe.name] =
+//        '${_attrAnnotationsToSpec[ea.element.enclosingElement.name]}${fe.name}';
+//      });
+//    });
+//
+//    List<PropertyAccessorElement> accessors = classElement.accessors;
+//    accessors.forEach((PropertyAccessorElement pae) {
+//      pae.metadata.forEach((ElementAnnotation ea) {
+//        meta.attributeMappings[ea.element.enclosingElement.name] =
+//        '${_attrAnnotationsToSpec[ea.element.enclosingElement.name]}${pae.name}';
+//      });
+//    });
   }
 }
 
