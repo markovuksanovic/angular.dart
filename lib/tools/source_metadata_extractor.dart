@@ -169,64 +169,36 @@ class DirectiveMetadataCollectingVisitor {
         });
       });
 
-      // Check fields/getters/setter for presense of attr mapping annotations.
+      // Check class and it's superclasses for presence of attr mapping annotations
       if (meta != null) {
-        clazz.members.forEach((ClassMember member) {
-          if (member is FieldDeclaration ||
-              (member is MethodDeclaration &&
-                  (member.isSetter || member.isGetter))) {
-            member.metadata.forEach((Annotation ann) {
-              if (_attrAnnotationsToSpec.containsKey(ann.name.name)) {
-                String fieldName;
-                if (member is FieldDeclaration) {
-                  fieldName = member.fields.variables.first.name.name;
-                } else { // MethodDeclaration
-                  fieldName = (member as MethodDeclaration).name.name;
-                }
-                StringLiteral attNameLiteral = ann.arguments.arguments.first;
-                if (meta.attributeMappings
-                        .containsKey(attNameLiteral.stringValue)) {
-                  throw 'Attribute mapping already defined for '
-                      '${clazz.name}.$fieldName';
-                }
-                meta.attributeMappings[attNameLiteral.stringValue] =
-                    _attrAnnotationsToSpec[ann.name.name] + fieldName;
-              }
-            });
+        ClassElement classElement = clazz.element;
+        while(classElement != null) {
+          _extractMappingsFromClass(classElement, meta);
+          if (classElement.supertype != null) {
+            classElement = classElement.supertype.element;
+          } else {
+            classElement = null;
           }
-        });
+        }
       }
+    });
+  }
 
-      // Check superclass for presence of attr mapping annotations
-      if (meta != null) {
-        ClassElement superClass = clazz.element.supertype.element;
-        List<FieldElement> fields = superClass.fields;
-        fields.forEach((FieldElement fe) {
-          List<ElementAnnotation> metadata = fe.metadata;
-          metadata.forEach((ElementAnnotation ea) {
-            if(ea.element.node != null) {
-              print('${ea.element.node}');
-            }
-            if(['NgAttr'].contains(ea.element.enclosingElement.type.name)) {
-              var value = ea.element;
-             meta.attributeMappings[ea.element.enclosingElement.type.name] = '@baseField';
-            }
-          });
-          print('FieldElement: ${fe.displayName}');
-        });
+  _extractMappingsFromClass(ClassElement classElement, DirectiveMetadata meta) {
+    List<FieldElement> fields = classElement.fields;
+    fields.forEach((FieldElement fe) {
+      fe.metadata.forEach((ElementAnnotation ea) {
+        meta.attributeMappings[ea.element.enclosingElement.name] =
+        '${_attrAnnotationsToSpec[ea.element.enclosingElement.name]}${fe.name}';
+      });
+    });
 
-//        superClass.fields.forEach((FieldElement member) {
-//            member.metadata.forEach((ElementAnnotation ann) {
-//              String name = ann.element.enclosingElement.type.name;
-//              if (_attrAnnotationsToSpec.containsKey(name)) {
-//                String fieldName = member.name;
-//                StringLiteral attNameLiteral = ann.arguments.arguments.first;
-//                meta.attributeMappings[attNameLiteral.stringValue] =
-//                _attrAnnotationsToSpec[ann.name.name] + fieldName;
-//              }
-//            });
-//        });
-      }
+    List<PropertyAccessorElement> accessors = classElement.accessors;
+    accessors.forEach((PropertyAccessorElement pae) {
+      pae.metadata.forEach((ElementAnnotation ea) {
+        meta.attributeMappings[ea.element.enclosingElement.name] =
+        '${_attrAnnotationsToSpec[ea.element.enclosingElement.name]}${pae.name}';
+      });
     });
   }
 }
