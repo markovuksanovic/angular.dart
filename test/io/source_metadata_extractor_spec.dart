@@ -8,7 +8,7 @@ import 'package:unittest/unittest.dart';
 
 void main() {
   describe('source_metadata_extractor', () {
-    it('should extract all attribute mappings including annotations', () {
+    iit('should extract all attribute mappings including annotations', () {
       var sourceCrawler = new SourceCrawlerImpl(['packages/']);
       var sourceMetadataExtractor = new SourceMetadataExtractor();
       List<DirectiveInfo> directives =

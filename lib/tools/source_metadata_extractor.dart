@@ -119,11 +119,19 @@ class DirectiveMetadataCollectingVisitor {
   List<DirectiveMetadata> metadata = <DirectiveMetadata>[];
 
   call(CompilationUnit cu) {
+    print('test');
     cu.declarations.forEach((CompilationUnitMember declaration) {
       if(declaration.element != null)
       // We only care about classes.
+//      if(declaration is TopLevelVariableDeclaration) {
+//        print('declaration is TopLevelVariableDeclaration');
+//      }
+//      if(declaration is ClassDeclaration) {
+//        print('declaration is ClassDeclaration');
+//      }
+
       if (declaration is! ClassDeclaration) return;
-      var clazz = declaration;
+      ClassDeclaration clazz = declaration;
       // Check class annotations for presense of NgComponent/NgDirective.
       DirectiveMetadata meta;
       clazz.metadata.forEach((Annotation ann) {
