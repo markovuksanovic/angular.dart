@@ -123,7 +123,7 @@ class DirectiveMetadataCollectingVisitor {
       if(declaration.element != null)
       // We only care about classes.
       if (declaration is! ClassDeclaration) return;
-      ClassDeclaration clazz = declaration;
+      var clazz = declaration;
       // Check class annotations for presense of NgComponent/NgDirective.
       DirectiveMetadata meta;
       clazz.metadata.forEach((Annotation ann) {
