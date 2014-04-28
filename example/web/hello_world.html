@@ -1,13 +1,16 @@
 <!DOCTYPE html>
+
 <html>
 <head>
-    <title>Hello, World!</title>
+    <meta charset="utf-8">
+    <title>SelectTest</title>
 </head>
-<body hello-world-controller>
+<body controller>
+<select ng-model="ctrl.item">
+    <option ng-repeat="i in ctrl.items" ng-value="i">{{i.name}}</option>
+</select>
 
-<h3>Hello {{ctrl.name}}!</h3>
-name: <input type="text" ng-model="ctrl.name">
-
+<script src="packages/shadow_dom/shadow_dom.min.js"></script>
 <script type="application/dart" src="hello_world.dart"></script>
 <script src="packages/browser/dart.js"></script>
 </body>
