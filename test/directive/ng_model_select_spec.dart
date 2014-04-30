@@ -4,11 +4,46 @@ import '../_specs.dart';
 
 //TODO(misko): re-enabled disabled tests once we have forms.
 
+@Controller(selector: '[foo]', publishAs: 'ctrl')
+class FooController {
+  String seenValue = "";
+  String currentValue = "a";
+
+  void onSelectionChanged() {
+    seenValue = currentValue;
+  }
+}
+
 main() {
   describe('input-select', () {
     describe('ng-value', () {
       TestBed _;
+      beforeEachModule((Module module) {
+        module.bind(FooController);
+      });
       beforeEach((TestBed tb) => _ = tb);
+
+      it('should update model before calling function', () {
+        var fooElement = _.compile(
+        '<div foo>'
+          '<select on-change="ctrl.onSelectionChanged()" probe="selectProbe" ng-model="ctrl.currentValue">'
+            '<option value="a">aaa</option>'
+            '<option value="b">bbb</option>'
+            '<option value="c">ccc</option>'
+          '</select>'
+        '</div>', appendToRoot: true);
+        var selectElement = fooElement.children.first;
+        _.rootScope.apply();
+
+        expect(selectElement).toEqualSelect([['a'], 'b', 'c']);
+        expect(_.rootScope.context['selectProbe'].injector.get(FooController).seenValue).toEqual("");
+
+        selectElement.querySelectorAll('option')[1].selected = true;
+        _.triggerEvent(selectElement, 'change');
+
+        expect(selectElement).toEqualSelect(['a', ['b'], 'c']);
+        expect(_.rootScope.context['selectProbe'].injector.get(FooController).seenValue).toEqual("b");
+      });
 
       it('should retrieve using ng-value', () {
         var selectElement = _.compile(
@@ -19,7 +54,7 @@ main() {
         var c3p0 = {"name":"c3p0"};
         _.rootScope.context['robots'] = [ r2d2, c3p0 ];
         _.rootScope.apply();
-        _.selectOption(_.rootElement, 'c3p0');
+        _.selectOption(selectElement, 'c3p0');
         expect(_.rootScope.context['robot']).toEqual(c3p0);
 
         _.rootScope.context['robot'] = r2d2;
@@ -37,7 +72,7 @@ main() {
         var c3p0 = {"name":"c3p0"};
         _.rootScope.context['robots'] = [ r2d2, c3p0 ];
         _.rootScope.apply();
-        _.selectOption(_.rootElement, 'c3p0');
+        _.selectOption(selectElement, 'c3p0');
         expect(_.rootScope.context['robot']).toEqual([c3p0]);
 
         _.rootScope.context['robot'] = [r2d2];
@@ -87,24 +122,25 @@ main() {
               '<option ng-repeat="r in robots">{{r}}</option>'
             '</select>', appendToRoot: true);
 
+        var selectElement = document.querySelector('select');
         _.rootScope.context['robots'] = ['c3p0', 'r2d2'];
         _.rootScope.context['robot'] = 'r2d2';
         _.rootScope.apply();
 
         var select = _.rootScope.context['p'].directive(InputSelect);
-        expect(_.rootElement).toEqualSelect(['c3p0', ['r2d2']]);
+        expect(selectElement).toEqualSelect(['c3p0', ['r2d2']]);
 
         _.rootElement.querySelectorAll('option')[0].selected = true;
-        _.triggerEvent(_.rootElement, 'change');
+        _.triggerEvent(selectElement, 'change');
 
 
-        expect(_.rootElement).toEqualSelect([['c3p0'], 'r2d2']);
+        expect(selectElement).toEqualSelect([['c3p0'], 'r2d2']);
         expect(_.rootScope.context['robot']).toEqual('c3p0');
 
         _.rootScope.apply(() {
           _.rootScope.context['robots'].insert(0, 'wallee');
         });
-        expect(_.rootElement).toEqualSelect(['wallee', ['c3p0'], 'r2d2']);
+        expect(selectElement).toEqualSelect(['wallee', ['c3p0'], 'r2d2']);
         expect(_.rootScope.context['robot']).toEqual('c3p0');
 
         _.rootScope.apply(() {
@@ -112,7 +148,7 @@ main() {
           _.rootScope.context['robot'] = 'r2d2+';
         });
 
-        expect(_.rootElement).toEqualSelect(['c3p0+', ['r2d2+']]);
+        expect(selectElement).toEqualSelect(['c3p0+', ['r2d2+']]);
         expect(_.rootScope.context['robot']).toEqual('r2d2+');
       });
 
@@ -150,7 +186,6 @@ main() {
                 '<option value="y">robot y</option>' +
               '</select>', appendToRoot: true);
           _.rootScope.apply();
-
           var select = _.rootScope.context['p'].directive(InputSelect);
 
           expect(selectElement).toEqualSelect(['', ['x'], 'y']);
@@ -426,12 +461,6 @@ main() {
     describe('select from angular.js', () {
       var scope, formElement, element;
       TestBed _;
-//      Element ngAppElement;
-//      beforeEachModule((Module module) {
-//        ngAppElement = new DivElement()..attributes['ng-app'] = '';
-//        module..bind(Node, toValue: ngAppElement);
-//        document.body.append(ngAppElement);
-//      });
 
       beforeEach((TestBed tb, Scope rootScope) {
         _ = tb;
@@ -441,7 +470,6 @@ main() {
       });
 
       compile(TestBed _, html) {
-        //ngAppElement.setInnerHtml('<form name="form">' + html + '</form>', treeSanitizer: new NullTreeSanitizer());
         var el = _.compile('<form name="form">' + html + '</form>', appendToRoot: true);
         element = el.querySelector('select');
         scope.apply();
@@ -457,7 +485,7 @@ main() {
 
         it('should compile children of a select without a ngModel, but not create a model for it',
             () {
-          compile(_,
+          var selectElement = _.compile(
                   '<select>' +
                     '<option selected="true">{{a}}</option>' +
                     '<option value="">{{b}}</option>' +
@@ -468,7 +496,7 @@ main() {
             scope.context['b'] = 'bar';
           });
 
-          expect(element.text).toEqual('foobarC');
+          expect(selectElement.text).toEqual('foobarC');
         });
 
 

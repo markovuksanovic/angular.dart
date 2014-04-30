@@ -6,6 +6,17 @@ import '../_specs.dart';
 class FooController {
   var description = "desc";
   var invoked = false;
+  EventHandler eventHandler;
+  Element element;
+
+  FooController(this.eventHandler, this.element) {
+    eventHandler.registerCallback(element, 'cux', onCux);
+  }
+
+  onCux(Event e) {
+    invoked = true;
+  }
+
 }
 
 @Component(selector: 'bar',
@@ -36,6 +47,16 @@ main() {
         </div>''', appendToRoot: true);
 
       _.triggerEvent(e.querySelector('[on-abc]'), 'abc');
+      expect(_.getScope(e).context['ctrl'].invoked).toEqual(true);
+    }));
+
+    it('should allow registration using method', inject((TestBed _) {
+      var e = _.compile(
+      '''<div foo>
+          <div baz></div>
+        </div>''', appendToRoot: true);
+
+      _.triggerEvent(e.querySelector('[baz]'), 'cux');
       expect(_.getScope(e).context['ctrl'].invoked).toEqual(true);
     }));
 

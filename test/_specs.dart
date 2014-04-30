@@ -239,6 +239,7 @@ _injectify(fn) {
 // Jasmine syntax
 beforeEachModule(fn) => jasmine_syntax.beforeEach(module(fn), priority:1);
 beforeEach(fn) => jasmine_syntax.beforeEach(_injectify(fn));
+afterEachModule(fn) => jasmine_syntax.afterEach(module(fn));
 afterEach(fn) => jasmine_syntax.afterEach(_injectify(fn));
 it(name, fn) => jasmine_syntax.it(name, _injectify(fn));
 iit(name, fn) => jasmine_syntax.iit(name, _injectify(fn));

@@ -47,15 +47,26 @@ class EventHandler {
     });
   }
 
+  void registerCallback(dom.Element element, String eventName, EventFunction callbackFn) {
+    ElementProbe probe = _expando[element];
+    probe.addListener(eventName, callbackFn);
+    register(eventName);
+  }
+
   void _eventListener(dom.Event event) {
-    dom.Node element = event.target;
+    var element = event.target;
     while (element != null && element != _rootNode) {
-      var expression;
-      if (element is dom.Element)
+      var expression, probe;
+      if (element is dom.Element) {
         expression = (element as dom.Element).attributes[eventNameToAttrName(event.type)];
-      if (expression != null) {
+        probe = _getProbe(element);
+      }
+      if (probe != null && probe.listeners[event.type] != null) {
+        probe.listeners[event.type](event);
+      }
+      if (probe!= null && expression != null) {
         try {
-          var scope = _getScope(element);
+          var scope = probe.scope;
           if (scope != null) scope.eval(expression);
         } catch (e, s) {
           _exceptionHandler(e, s);
@@ -65,12 +76,12 @@ class EventHandler {
     }
   }
 
-  Scope _getScope(dom.Node element) {
+  ElementProbe _getProbe(dom.Node element) {
     // var topElement = (rootNode is dom.ShadowRoot) ? rootNode.parentNode : rootNode;
     while (element != _rootNode.parentNode) {
       ElementProbe probe = _expando[element];
       if (probe != null) {
-        return probe.scope;
+        return probe;
       }
       element = element.parentNode;
     }
