@@ -12,12 +12,13 @@ class TestBed {
   final Compiler compiler;
   final Parser _parser;
   final Expando expando;
+  final Element appRoot;
 
   Element rootElement;
   List<Node> rootElements;
   View rootView;
 
-  TestBed(this.injector, this.rootScope, this.compiler, this._parser, this.expando);
+  TestBed(this.injector, this.rootScope, this.compiler, this._parser, this.expando, this.appRoot);
 
 
   /**
@@ -34,7 +35,7 @@ class TestBed {
    *
    * An option [scope] parameter can be supplied to link it with non root scope.
    */
-  Element compile(html, {Scope scope, DirectiveMap directives}) {
+  Element compile(html, {Scope scope, DirectiveMap directives, bool appendToRoot: false}) {
     var injector = this.injector;
     if (scope != null) {
       injector = injector.createChild([new Module()..bind(Scope, toValue: scope)]);
@@ -53,6 +54,7 @@ class TestBed {
       directives = injector.get(DirectiveMap);
     }
     rootView = compiler(rootElements, directives)(injector, rootElements);
+    if (appendToRoot && rootElement != null) appRoot.append(rootElement);
     return rootElement;
   }
 
@@ -99,4 +101,8 @@ class TestBed {
   }
 
   getScope(Node node) => getProbe(node).scope;
+}
+
+class TestRootElement {
+  const TestRootElement();
 }

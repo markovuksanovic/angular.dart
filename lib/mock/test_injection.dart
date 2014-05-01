@@ -1,5 +1,7 @@
 library angular.mock.test_injection;
 
+import 'dart:html';
+
 import 'package:angular/application_factory.dart';
 import 'package:angular/mock/module.dart';
 import 'package:di/di.dart';
@@ -61,6 +63,7 @@ class _SpecInjector {
     }
   }
 
+  // This seems like it's never used.
   reset() {
     injector = null;
     injectiorCreateLocation = null;
@@ -141,9 +144,19 @@ void setUpInjector() {
   });
 }
 
+void setUpAppRoot() {
+  Element appRoot = new DivElement()..attributes['ng-app'] = '';
+  document.body.append(appRoot);
+}
+
 /**
  * Call this method in your test harness [tearDown] method to cleanup the injector.
  */
 void tearDownInjector() {
   _currentSpecInjector = null;
+}
+
+void cleanUpAppRoot() {
+  var root = document.querySelector('[ng-app]');
+  if (root != null) root.children.clear();
 }
