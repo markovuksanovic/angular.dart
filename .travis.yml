@@ -34,6 +34,7 @@ before_install:
 - ./scripts/travis/install.sh
 before_script:
 - ./scripts/travis/setup.sh
+- ./scripts/travis/rebase.sh
 script:
 - ./scripts/travis/build.sh
 after_success:
