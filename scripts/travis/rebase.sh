@@ -23,7 +23,7 @@ if [ "$TRAVIS_REPO_SLUG" = "markovuksanovic/angular.dart" ]; then
     git config user.name "deploy-test@travis-ci.org"
 
     echo "rebasing " ${BASH_REMATCH[1]} " onto " ${BASH_REMATCH[2]}
-    git remote add upstream https://github.com/angular/angular.dart.git
+    git remote add upstream https://github.com/${TRAVIS_REPO_SLUG}.git
     git fetch upstream master
     git rebase upstream/master
     if git push upstream HEAD:master; then
