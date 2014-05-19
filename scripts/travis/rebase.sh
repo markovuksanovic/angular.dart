@@ -5,7 +5,7 @@ set -e
 #  tests pass, merge the presubmit branch into master and push it.
 
 echo '***************'
-echo '** PRESUBMIT **'
+echo '** REBASE    **'
 echo '***************'
 
 
@@ -14,19 +14,16 @@ SHA=`git rev-parse HEAD`
 
 echo Current channel is: $CHANNEL
 echo Current branch is: $TRAVIS_BRANCH
-echo Test result is: $TRAVIS_TEST_RESULT
 
-if [ "$TRAVIS_REPO_SLUG" = "angular/angular.dart" ]; then
-  if [ $TRAVIS_TEST_RESULT -eq 0 ] && [[ $TRAVIS_BRANCH =~ ^(.*)-q-(.*)$ ]]; then
-    echo "rebasing " ${BASH_REMATCH[1]} " onto " ${BASH_REMATCH[2]}
+if [ "$TRAVIS_REPO_SLUG" = "markovuksanovic/angular.dart" ]; then
+  if [[ $TRAVIS_BRANCH =~ ^(.*)-q-(.*)$ ]]; then
     git config credential.helper "store --file=.git/credentials"
     # travis encrypt GITHUB_TOKEN_ANGULAR_ORG=??? --repo=angular/angular.dart
     echo "https://${GITHUB_TOKEN_ANGULAR_ORG}:@github.com" > .git/credentials
-    git config user.name "travis@travis-ci.org"
+    git config user.name "deploy-test@travis-ci.org"
 
-    echo "Pushing HEAD to master..."
+    echo "rebasing " ${BASH_REMATCH[1]} " onto " ${BASH_REMATCH[2]}
     git remote add upstream https://github.com/angular/angular.dart.git
-    git stash
     git fetch upstream master
     git rebase upstream/master
     if git push upstream HEAD:master; then
