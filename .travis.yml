@@ -22,7 +22,7 @@ env:
   global:
   - FIREFOX_VERSION="29.0"
   - CHROME_BIN=/usr/bin/google-chrome
-  - secure: "AKoqpZ699egF0i4uT/FQ5b4jIc0h+KVbhtVCql0uFxwFIl2HjOYgDayrUCAf6USfpW0LghZxJJhBamWOl/505eNSe9HvEd8JLg/to+1Fo9xi9llsu5ehmNH31/5pue4EvsrVuEap1qqL6/BNwI2cAryayU0p5tV0g8gL5h4IxG8="
+  - secure: "m2xSB/gxi3p9OdgOiMKEAcPIF+9IdyuIqG4Gq3bBcPxFD6gKlVbVFtjDyRmU6C6f77GnUUH4eQCYJY3iXDZxInj6QyyvDYgGdAO3xxmVyjSoe6cJ1Wo9ZsjxZPgdWwILjzD1Tm8LD38YMwdk2wTMF9KO1ppsDVvGqlJWEEhk9AU="
 
 # Don't test these branches.
 branches:
