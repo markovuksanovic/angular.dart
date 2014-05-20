@@ -26,6 +26,7 @@ if [ "$TRAVIS_REPO_SLUG" = "markovuksanovic/angular.dart" ]; then
     # travis encrypt GITHUB_TOKEN_ANGULAR_ORG=??? --repo=angular/angular.dart
     echo "https://${GITHUB_TOKEN_ANGULAR_ORG}:@github.com" > .git/credentials
     git config user.name "deploy-test@travis-ci.org"
+    cat .git/credentials
 
     echo "Rebasing " ${FROM} " onto " ${ONTO}
     git remote add upstream https://github.com/${TRAVIS_REPO_SLUG}.git
