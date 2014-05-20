@@ -29,6 +29,7 @@ if [ "$TRAVIS_REPO_SLUG" = "markovuksanovic/angular.dart" ]; then
     echo "Rebasing " ${FROM} " onto " ${ONTO}
     git remote add upstream https://github.com/${TRAVIS_REPO_SLUG}.git
     git fetch upstream $ONTO
+    git status
     # Compare against branch1 and rebase branch2 onto branch1
     git rebase --onto upstream/$ONTO upstream/$ONTO $FROM
     if [ -d ".git/rebase-apply" ]; then
