@@ -19,7 +19,7 @@ echo Current branch is: $TRAVIS_BRANCH
 
 if [ "$TRAVIS_REPO_SLUG" = "markovuksanovic/angular.dart" ]; then
   if [[ $TRAVIS_BRANCH =~ ^(.*)-q-(.*)$ ]]; then
-    FROM=${BASH_REMATCH[1]}
+    FROM=${BASH_REMATCH[0]}
     ONTO=${BASH_REMATCH[2]}
     git config credential.helper "store --file=.git/credentials"
     # travis encrypt GITHUB_TOKEN_ANGULAR_ORG=??? --repo=angular/angular.dart
