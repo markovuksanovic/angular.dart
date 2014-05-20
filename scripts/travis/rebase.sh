@@ -2,9 +2,10 @@
 set -e
 
 #  If we're on the branch which has the name of the form
-#  branch1-q-branch2 we rebase branch1 onto branch2
-#  If we're on the presubmit branch, the dev Dart release, and all unit
-#  tests pass, merge the presubmit branch into master and push it.
+#  branch1-q-* we rebase branch1-q-* onto branch1.
+#  This will leave system in detached head state. After this
+#  tests will be run. Pushing the code into appropriate
+#  branch is done during in "after_success" phase.
 
 echo '***************'
 echo '**  REBASE   **'
@@ -18,9 +19,9 @@ echo Current channel is: $CHANNEL
 echo Current branch is: $TRAVIS_BRANCH
 
 if [ "$TRAVIS_REPO_SLUG" = "markovuksanovic/angular.dart" ]; then
-  if [[ $TRAVIS_BRANCH =~ ^(.*)-q-(.*)$ ]]; then
+  if [[ $TRAVIS_BRANCH =~ ^(.*)-q-.*$ ]]; then
     FROM=${BASH_REMATCH[0]}
-    ONTO=${BASH_REMATCH[2]}
+    ONTO=${BASH_REMATCH[1]}
     git config credential.helper "store --file=.git/credentials"
     # travis encrypt GITHUB_TOKEN_ANGULAR_ORG=??? --repo=angular/angular.dart
     echo "https://${GITHUB_TOKEN_ANGULAR_ORG}:@github.com" > .git/credentials

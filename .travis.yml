@@ -33,8 +33,8 @@ before_install:
 - export DISPLAY=:99.0
 - ./scripts/travis/install.sh
 before_script:
-- ./scripts/travis/setup.sh
 - ./scripts/travis/rebase.sh
+- ./scripts/travis/setup.sh
 script:
 - ./scripts/travis/build.sh
 after_success:
