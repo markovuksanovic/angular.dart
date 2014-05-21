@@ -22,7 +22,7 @@ env:
   global:
   - FIREFOX_VERSION="29.0"
   - CHROME_BIN=/usr/bin/google-chrome
-  - secure: "m2xSB/gxi3p9OdgOiMKEAcPIF+9IdyuIqG4Gq3bBcPxFD6gKlVbVFtjDyRmU6C6f77GnUUH4eQCYJY3iXDZxInj6QyyvDYgGdAO3xxmVyjSoe6cJ1Wo9ZsjxZPgdWwILjzD1Tm8LD38YMwdk2wTMF9KO1ppsDVvGqlJWEEhk9AU="
+  - GITHUB_TOKEN_ANGULAR_ORG=a6a7d3030705da732ce9aca16b03bc02ec8d674c
 
 # Don't test these branches.
 branches:
