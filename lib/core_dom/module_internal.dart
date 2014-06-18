@@ -48,6 +48,7 @@ part 'transcluding_component_factory.dart';
 part 'tree_sanitizer.dart';
 part 'walking_compiler.dart';
 part 'ng_element.dart';
+part 'xhr.dart';
 
 class CoreDomModule extends Module {
   CoreDomModule() {
@@ -88,5 +89,6 @@ class CoreDomModule extends Module {
     bind(ElementBinderFactory);
     bind(NgElement);
     bind(EventHandler);
+    bind(Xhr);
   }
 }
