@@ -42,14 +42,19 @@ void main() {
     }
 
     beforeEachModule((Module module) {
-      backend = new MockHttpBackend();
       locationWrapper = new MockLocationWrapper();
       cache = new FakeCache();
+      backend =  new MockHttpBackend();
       module
-        ..bind(HttpBackend, toValue: backend)
+        ..bind(MockHttpBackend, toValue: backend)
+        ..bind(HttpBackend, toFactory: (i) => i.get(MockHttpBackend))
         ..bind(LocationWrapper, toValue: locationWrapper)
         ..bind(ExceptionHandler, toImplementation: LoggingExceptionHandler);
     });
+
+    beforeEach(async((VmTurnZone zone){
+      backend.zone = Zone.current;
+    }));
 
     afterEach((ExceptionHandler eh, Scope scope) {
       scope.apply();
@@ -63,7 +68,6 @@ void main() {
       var callback;
 
       beforeEach((Http h) {
-        h.requestsOutsideAngular = false;
         http = h;
         callback = guinness.createSpy('callback');
       });
@@ -1196,7 +1200,6 @@ void main() {
         var callback;
 
         beforeEach((Http h) {
-          h.requestsOutsideAngular = false;
           http = h;
           callback = guinness.createSpy('callback');
         });

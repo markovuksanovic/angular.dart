@@ -123,7 +123,8 @@ class _Chain {
 class MockHttpBackend implements HttpBackend {
   var definitions = [],
       expectations = [],
-      responses = [];
+      responses = [],
+      zone;
 
   /**
    * This function is called from [Http] and designed to mimic the Dart APIs.
@@ -132,18 +133,24 @@ class MockHttpBackend implements HttpBackend {
                  {String method, bool withCredentials: false, String responseType,
                  String mimeType, Map<String, String> requestHeaders, sendData,
                  void onProgress(ProgressEvent e)}) {
-    dart_async.Completer c = new dart_async.Completer();
-    var callback = (status, data, headers) {
-      if (status >= 200 && status < 300) {
-        c.complete(new MockHttpRequest(status, data, headers));
-      } else {
-        c.completeError(new MockProgressEvent(
-            new MockHttpRequest(status, data, headers)));
-      }
+    var request = () {
+      dart_async.Completer c = new dart_async.Completer();
+      var callback = (status, data, headers) {
+        if (status >= 200 && status < 300) {
+          c.complete(new MockHttpRequest(status, data, headers));
+        } else {
+          c.completeError(new MockProgressEvent(
+              new MockHttpRequest(status, data, headers)));
+        }
+      };
+      call(method == null ? 'GET' : method, url, callback,
+      data: sendData, headers: requestHeaders, withCredentials: withCredentials);
+      return c.future;
     };
-    call(method == null ? 'GET' : method, url, callback,
-         data: sendData, headers: requestHeaders, withCredentials: withCredentials);
-    return c.future;
+    if(zone != null) {
+      return zone.run(() => request());
+    }
+    return request();
   }
 
   _createResponse(statusOrDataOrFunction, dataOrHeaders, headersOrNone) {

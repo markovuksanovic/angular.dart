@@ -646,21 +646,21 @@ void main() {
       describe('lifecycle', () {
         beforeEachModule((Module module) {
           var httpBackend = new MockHttpBackend();
-
           module
             ..bind(HttpBackend, toValue: httpBackend)
             ..bind(MockHttpBackend, toValue: httpBackend);
         });
 
-        it('should fire onShadowRoot method', async((Compiler compile, Logger logger, MockHttpBackend backend, Http http) {
-          http.requestsOutsideAngular = false;
+        it('should fire onShadowRoot method', async((Compiler compile, Logger logger, MockHttpBackend backend) {
+          backend.zone = Zone.current;
           backend.whenGET('some/template.url').respond(200, '<div>WORKED</div>');
           var scope = _.rootScope.createChild({});
           scope.context['isReady'] = 'ready';
           scope.context['logger'] = logger;
           scope.context['once'] = null;
           var elts = es('<attach-detach attr-value="{{isReady}}" expr-value="isReady" once-value="once">{{logger("inner")}}</attach-detach>');
-          compile(elts, _.injector.get(DirectiveMap))(_.injector.createChild([new Module()..bind(Scope, toValue: scope)]), elts);
+          Zone.current.run(() => compile(elts, _.injector.get(DirectiveMap))(_.injector.createChild([new Module()..bind(Scope, toValue: scope)]), elts));
+
           expect(logger).toEqual(['new']);
 
           expect(logger).toEqual(['new']);
@@ -677,7 +677,6 @@ void main() {
           expect(logger).toEqual(expected);
           logger.clear();
 
-          microLeap();
           microLeap();
           backend.flush();
           microLeap();

@@ -70,8 +70,8 @@ class VmTurnZone {
    * Defaults [onError] to forward errors to the outer [Zone].
    * Defaults [onTurnStart] and [onTurnDone] to no-op functions.
    */
-  VmTurnZone() {
-    _outerZone = async.Zone.current;
+  VmTurnZone({async.Zone currentZone}) {
+    _outerZone = currentZone != null ? currentZone : async.Zone.current;
     _innerZone = _outerZone.fork(specification: new async.ZoneSpecification(
         run: _onRun,
         runUnary: _onRunUnary,

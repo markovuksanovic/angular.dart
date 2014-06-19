@@ -487,15 +487,11 @@ class Http {
       }
 
       async.Completer reqCompleter = new async.Completer();
-      if (requestsOutsideAngular) {
-        _zone.runOutsideAngular(() {
-          _backend.request(url, method: method, requestHeaders: config.headers, sendData: config.data,
-          withCredentials: withCredentials).then((dom.HttpRequest req) =>_onResponse(req, reqCompleter, config, cache, url),  onError: (e) =>_onError(e,reqCompleter, config, url));
-        });
-      } else {
+      _zone.runOutsideAngular(() {
         _backend.request(url, method: method, requestHeaders: config.headers, sendData: config.data,
-        withCredentials: withCredentials).then((dom.HttpRequest req) =>_onResponse(req, reqCompleter, config, cache, url),  onError: (e) =>_onError(e,reqCompleter, config, url));
-      }
+          withCredentials: withCredentials).then((dom.HttpRequest req) =>_onResponse(req, reqCompleter, config, cache, url),
+          onError: (e) =>_onError(e,reqCompleter, config, url));
+      });
 
       return _pendingRequests[url] = reqCompleter.future;
     };
