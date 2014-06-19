@@ -63,6 +63,7 @@ void main() {
       var callback;
 
       beforeEach((Http h) {
+        h.requestsOutsideAngular = false;
         http = h;
         callback = guinness.createSpy('callback');
       });
@@ -1195,6 +1196,7 @@ void main() {
         var callback;
 
         beforeEach((Http h) {
+          h.requestsOutsideAngular = false;
           http = h;
           callback = guinness.createSpy('callback');
         });

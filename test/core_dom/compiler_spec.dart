@@ -1,5 +1,6 @@
 library compiler_spec;
 
+import 'dart:async';
 import '../_specs.dart';
 
 
@@ -651,7 +652,8 @@ void main() {
             ..bind(MockHttpBackend, toValue: httpBackend);
         });
 
-        it('should fire onShadowRoot method', async((Compiler compile, Logger logger, MockHttpBackend backend) {
+        it('should fire onShadowRoot method', async((Compiler compile, Logger logger, MockHttpBackend backend, Http http) {
+          http.requestsOutsideAngular = false;
           backend.whenGET('some/template.url').respond(200, '<div>WORKED</div>');
           var scope = _.rootScope.createChild({});
           scope.context['isReady'] = 'ready';
@@ -675,6 +677,7 @@ void main() {
           expect(logger).toEqual(expected);
           logger.clear();
 
+          microLeap();
           microLeap();
           backend.flush();
           microLeap();

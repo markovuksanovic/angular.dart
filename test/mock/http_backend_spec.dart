@@ -14,7 +14,10 @@ class _Chain {
 void main() {
   describe('MockHttpBackend', () {
     TestBed _;
-    beforeEach((TestBed tb) => _ = tb);
+    beforeEach((TestBed tb, Http http) {
+      _ = tb;
+      http.requestsOutsideAngular = false;
+    });
 
     MockHttpBackend hb;
     var callback, realBackendSpy;
